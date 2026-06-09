@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Vault - Academic Question Bank</title>
+    <!-- Lucide Icons for Professional UI Layouts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* CSS Variables & Academic Theme Palette */
+        :root {
+            --primary: #0284c7; /* Sky Blue Primary */
+            --primary-hover: #0369a1;
+            --accent: #ef4444; /* Alert/Delete Red */
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Subject Category Color Guides */
+            --compulsory-color: #0369a1;
+            --compulsory-bg: #f0f9ff;
+            --science-color: #15803d;
+            --science-bg: #f0fdf4;
+            --commerce-color: #6d28d9;
+            --commerce-bg: #faf5ff;
+            --arts-color: #b45309;
+            --arts-bg: #fffbeb;
+        }
+
+        /* Base CSS Resets */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Sticky Navigation Bar */
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo-title p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Buttons Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        /* Metrics Dashboard */
+        .stats-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        @media (min-width: 640px) {
+            .stats-wrapper {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-wrapper {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stat-card-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .cat-all { border-left: 4px solid var(--primary); }
+        .cat-compulsory { border-left: 4px solid var(--compulsory-color); background-color: var(--compulsory-bg); color: var(--compulsory-color); }
+        .cat-science { border-left: 4px solid var(--science-color); background-color: var(--science-bg); color: var(--science-color); }
+        .cat-commerce { border-left: 4px solid var(--commerce-color); background-color: var(--commerce-bg); color: var(--commerce-color); }
+        .cat-arts { border-left: 4px solid var(--arts-color); background-color: var(--arts-bg); color: var(--arts-color); }
+
+        /* Filter Controls Panel */
+        .control-panel {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .control-panel {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            outline: none;
+            background-color: #ffffff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .input-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        /* Question Cards Layout */
+        .questions-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .q-card {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .q-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .q-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 0.725rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .badge-compulsory { background-color: var(--compulsory-bg); color: var(--compulsory-color); border: 1px solid #bfdbfe; }
+        .badge-science { background-color: var(--science-bg); color: var(--science-color); border: 1px solid #a7f3d0; }
+        .badge-commerce { background-color: var(--commerce-bg); color: var(--commerce-color); border: 1px solid #e9d5ff; }
+        .badge-arts { background-color: var(--arts-bg); color: var(--arts-color); border: 1px solid #fde68a; }
+
+        .badge-chap {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 0.725rem;
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .card-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 6px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .card-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        .card-edit:hover { color: var(--primary); }
+        .card-delete:hover { color: var(--accent); }
+
+        .q-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            white-space: pre-line;
+        }
+
+        /* Collapsible Answers Section */
+        .collapse-trigger {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+        }
+
+        .collapse-trigger:hover {
+            color: var(--primary-hover);
+        }
+
+        .collapse-body {
+            display: none;
+            margin-top: 12px;
+            padding: 14px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        .collapse-body.is-open {
+            display: block;
+        }
+
+        .ans-banner {
+            font-weight: 700;
+            color: #0369a1;
+            margin-bottom: 6px;
+        }
+
+        /* Keyboard-Adaptive Modal System */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-mask.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-window {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            transform: scale(0.95);
+            transition: transform 0.2s ease, max-height 0.2s ease;
+        }
+
+        /* CSS Fix for Mobile Keyboard Overlap: Shift modal to full-screen/top-scroll on mobile viewports */
+        @media (max-width: 640px) {
+            .modal-mask {
+                align-items: flex-start;
+                padding: 0;
+            }
+
+            .modal-window {
+                max-height: 100%;
+                height: 100%;
+                border-radius: 0;
+                transform: scale(1);
+            }
+        }
+
+        .modal-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-card);
+        }
+
+        .modal-head h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .modal-dismiss {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+        }
+
+        .modal-content-scroll {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            /* Creates dynamic breathing room at the bottom so elements can always scroll up above virtual keyboards */
+            padding-bottom: 120px; 
+        }
+
+        .modal-foot {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: var(--bg-card);
+        }
+
+        /* Utility State Classes */
+        .hidden { display: none !important; }
+        .flex-row-gap-2 { display: flex; gap: 8px; }
+        .flex-1 { flex: 1; }
+        
+        .empty-visual {
+            text-align: center;
+            padding: 56px 16px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-card);
+        }
+
+        .empty-visual h4 {
+            font-size: 1.1rem;
+            margin-top: 12px;
+            color: var(--text-main);
+        }
+
+        .empty-visual p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Panel -->
+    <header>
+        <div class="container header-content">
+            <div class="logo-group">
+                <div class="logo-box">
+                    <i data-lucide="book-marked" style="width: 22px; height: 22px;"></i>
+                </div>
+                <div class="logo-title">
+                    <h1>Study Vault</h1>
+                    <p>Academic Curriculum Bank</p>
+                </div>
+            </div>
+            <button onclick="openQuestionModal()" class="btn btn-primary">
+                <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i>
+                <span>Add Question</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- Metrics Counter Summary -->
+        <div class="stats-wrapper">
+            <div class="stat-card cat-all">
+                <span class="stat-card-title">Total Base</span>
+                <span class="stat-card-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-card cat-compulsory">
+                <span class="stat-card-title">Compulsory</span>
+                <span class="stat-card-value" id="stat-compulsory">0</span>
+            </div>
+            <div class="stat-card cat-science">
+                <span class="stat-card-title">Science Group</span>
+                <span class="stat-card-value" id="stat-science">0</span>
+            </div>
+            <div class="stat-card cat-commerce">
+                <span class="stat-card-title">Commerce Group</span>
+                <span class="stat-card-value" id="stat-commerce">0</span>
+            </div>
+            <div class="stat-card cat-arts">
+                <span class="stat-card-title">Humanities</span>
+                <span class="stat-card-value" id="stat-arts">0</span>
+            </div>
+        </div>
+
+        <!-- Filter Controls Panel -->
+        <div class="control-panel">
+            <div class="input-group" style="flex: 2;">
+                <label for="search">Search Keywords</label>
+                <input type="text" id="search" oninput="applyFilters()" placeholder="Search keywords, solutions, chapters, etc..." class="input-control">
+            </div>
+            <div class="input-group">
+                <label for="filter-subject">Subject Categorization</label>
+                <select id="filter-subject" onchange="onFilterSubjectChange()" class="input-control">
+                    <option value="All">All Subjects</option>
+                    
+                    <optgroup label="General / Compulsory Subjects">
+                        <option value="Bangla">Bangla</option>
+                        <option value="English">English</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Science">Science</option>
+                        <option value="History & Social Science">History & Social Science</option>
+                        <option value="Digital Technology">Digital Technology</option>
+                        <option value="Life & Livelihood">Life & Livelihood</option>
+                        <option value="Health Protection">Health Protection</option>
+                        <option value="Arts & Culture">Arts & Culture</option>
+                        <option value="Religious Education">Religious Education</option>
+                        <option value="Information & Communication Technology (ICT)">Information & Communication Technology (ICT)</option>
+                    </optgroup>
+
+                    <optgroup label="Science Group Subjects">
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Higher Mathematics">Higher Mathematics</option>
+                    </optgroup>
+
+                    <optgroup label="Business Studies Group Subjects">
+                        <option value="Accounting">Accounting</option>
+                        <option value="Finance, Banking & Insurance">Finance, Banking & Insurance</option>
+                        <option value="Business Organization & Management">Business Organization & Management</option>
+                    </optgroup>
+
+                    <optgroup label="Humanities Group Subjects">
+                        <option value="Economics">Economics</option>
+                        <option value="Geography">Geography</option>
+                        <option value="Sociology">Sociology</option>
+                        <option value="Civics & Good Governance">Civics & Good Governance</option>
+                        <option value="Logic">Logic</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="filter-chapter">Chapter Categorization</label>
+                <select id="filter-chapter" onchange="applyFilters()" class="input-control">
+                    <option value="All">All Chapters</option>
+                </select>
+            </div>
+            <div>
+                <button onclick="clearFilters()" class="btn btn-outline" style="height: 42px;" title="Reset Filters">
+                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Render Container -->
+        <div id="questions-container" class="questions-wrapper">
+            <!-- Dynamic Cards Load Here -->
+        </div>
+
+        <!-- No Questions Found Frame -->
+        <div id="empty-state" class="empty-visual hidden">
+            <i data-lucide="search-code" style="width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto;"></i>
+            <h4>No Questions Found</h4>
+            <p>Modify your query criteria or write a new custom question.</p>
+        </div>
+
+    </main>
+
+    <!-- Modal Form (Optimized for Mobile Keyboards) -->
+    <div id="question-modal" class="modal-mask" onclick="closeQuestionModalOnOverlay(event)">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h3 id="modal-title">Add New Question</h3>
+                <button onclick="closeQuestionModal()" class="modal-dismiss">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+            <form id="question-form" onsubmit="handleFormSubmit(event)">
+                <div class="modal-content-scroll" id="modal-scroll-area">
+                    <input type="hidden" id="edit-id">
+
+                    <!-- Subject Selector -->
+                    <div class="input-group">
+                        <label for="form-subject">Target Subject <span style="color: var(--accent);">*</span></label>
+                        <select id="form-subject" onchange="onFormSubjectChange()" required class="input-control">
+                            <option value="">Select Subject</option>
+                            <option value="Bangla">Bangla</option>
+                            <option value="English">English</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Science">Science</option>
+                            <option value="History & Social Science">History & Social Science</option>
+                            <option value="Digital Technology">Digital Technology</option>
+                            <option value="Life & Livelihood">Life & Livelihood</option>
+                            <option value="Health Protection">Health Protection</option>
+                            <option value="Arts & Culture">Arts & Culture</option>
+                            <option value="Religious Education">Religious Education</option>
+                            <option value="Information & Communication Technology (ICT)">Information & Communication Technology (ICT)</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Higher Mathematics">Higher Mathematics</option>
+                            <option value="Accounting">Accounting</option>
+                            <option value="Finance, Banking & Insurance">Finance, Banking & Insurance</option>
+                            <option value="Business Organization & Management">Business Organization & Management</option>
+                            <option value="Economics">Economics</option>
+                            <option value="Geography">Geography</option>
+                            <option value="Sociology">Sociology</option>
+                            <option value="Civics & Good Governance">Civics & Good Governance</option>
+                            <option value="Logic">Logic</option>
+                        </select>
+                    </div>
+
+                    <!-- Chapter Selector -->
+                    <div class="input-group">
+                        <label>Chapter Name <span style="color: var(--accent);">*</span></label>
+                        <div class="flex-row-gap-2">
+                            <select id="form-chapter-select" onchange="syncCustomChapterField()" class="input-control flex-1">
+                                <!-- Populated dynamically -->
+                            </select>
+                            <input type="text" id="form-chapter-custom" placeholder="Custom Chapter..." class="input-control flex-1 hidden">
+                        </div>
+                    </div>
+
+                    <!-- Question Content Field -->
+                    <div class="input-group">
+                        <label for="form-text">Question Prompt <span style="color: var(--accent);">*</span></label>
+                        <textarea id="form-text" rows="3" required placeholder="Type the question details..." class="input-control" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <!-- Correct Answer Field (Auto-scrolled on focus) -->
+                    <div class="input-group">
+                        <label for="form-answer">Correct Answer <span style="color: var(--accent);">*</span></label>
+                        <input type="text" id="form-answer" required placeholder="Type the correct answer..." class="input-control">
+                    </div>
+
+                    <!-- Explanation (Auto-scrolled on focus) -->
+                    <div class="input-group">
+                        <label for="form-explanation">Explanation / Solution Steps</label>
+                        <textarea id="form-explanation" rows="2" placeholder="Write step-by-step logic (optional)..." class="input-control" style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" onclick="closeQuestionModal()" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Engine Logic -->
+    <script>
+        // Subject categories classification grouping
+        const subjectGroupMap = {
+            'Bangla': 'compulsory', 'English': 'compulsory', 'Mathematics': 'compulsory', 'Science': 'compulsory',
+            'History & Social Science': 'compulsory', 'Digital Technology': 'compulsory', 'Life & Livelihood': 'compulsory',
+            'Health Protection': 'compulsory', 'Arts & Culture': 'compulsory', 'Religious Education': 'compulsory',
+            'Information & Communication Technology (ICT)': 'compulsory',
+            'Physics': 'science', 'Chemistry': 'science', 'Biology': 'science', 'Higher Mathematics': 'science',
+            'Accounting': 'commerce', 'Finance, Banking & Insurance': 'commerce', 'Business Organization & Management': 'commerce',
+            'Economics': 'arts', 'Geography': 'arts', 'Sociology': 'arts', 'Civics & Good Governance': 'arts', 'Logic': 'arts'
+        };
+
+        // NCTB Presets English Translation
+        const defaultChaptersBySubject = {
+            'Bangla': ['Prose Section', 'Poetry Section', 'Bangla Grammar', 'Creative Writing'],
+            'English': ['Reading Comprehension', 'English Grammar', 'Writing Skill', 'Vocabulary'],
+            'Mathematics': ['Real Numbers', 'Sets & Functions', 'Algebraic Expressions', 'Geometry', 'Trigonometry', 'Statistics'],
+            'Science': ['Cells & Organs', 'Structure of Matter', 'Force & Motion', 'Universe & Earth'],
+            'History & Social Science': ['Ancient Bengal History', 'Social Structure & Class', 'Geographical Resources'],
+            'Digital Technology': ['Digital Media & Ethics', 'Information Safety', 'Algorithm & Programming'],
+            'Life & Livelihood': ['Career Guidelines', 'Basic Financial Planning', 'Self Employment'],
+            'Health Protection': ['Diet & Nutrition', 'Physical & Mental Well-being', 'First Aid Rules'],
+            'Arts & Culture': ['Traditional Fine Art', 'Visual & Folk Arts', 'Musical Heritage'],
+            'Religious Education': ['Moral Values', 'Sacred Teachings', 'Spiritual Rituals'],
+            'Information & Communication Technology (ICT)': ['Global Perspective', 'Network Topology', 'Web Design with HTML', 'Database Management System'],
+            'Physics': ['Physical Quantities', 'Kinematics', 'Force', 'Work, Power & Energy', 'Thermodynamics', 'Waves & Sound', 'Static Electricity', 'Current Electricity'],
+            'Chemistry': ['Concept of Chemistry', 'States of Matter', 'Structure of Atom', 'Periodic Table', 'Chemical Bonds', 'Quantitative Chemistry', 'Chemical Reaction'],
+            'Biology': ['Introduction to Life', 'Cell Division', 'Photosynthesis', 'Human Digestive System', 'Coordination & Response', 'Genetics'],
+            'Higher Mathematics': ['Advanced Sets', 'Polynomial Expressions', 'Coordinate Geometry', 'Vectors', 'Infinite Series', 'Probability'],
+            'Accounting': ['Introduction to Accounting', 'Transactions Analysis', 'Double Entry System', 'Ledger', 'Trial Balance', 'Financial Statements'],
+            'Finance, Banking & Insurance': ['Concept of Finance', 'Time Value of Money', 'Risk & Uncertainty', 'Commercial Banking', 'Principles of Insurance'],
+            'Business Organization & Management': ['Business Environment', 'Sole Proprietorship', 'Joint Stock Company', 'Management Concepts', 'Planning & Leadership'],
+            'Economics': ['Introduction to Economics', 'Demand & Supply', 'Consumer Behaviour', 'National Income', 'Economic Indicators of Bangladesh'],
+            'Geography': ['Physical Geography', 'Solar System', 'Lithosphere & Plate Tectonics', 'Weather & Climate'],
+            'Sociology': ['Sociology Scope', 'Culture & Society', 'Social Institutions', 'Social Stratification & Change'],
+            'Civics & Good Governance': ['Concepts of Civics', 'Organs of State', 'Constitutional Framework', 'Good Governance Rules'],
+            'Logic': ['Terms & Classification', 'Nature of Propositions', 'Deductive Syllogism', 'Inductive Research Methods']
+        };
+
+        // Static seed data for academic context (Strict Short Answer format only)
+        const seedQuestions = [
+            {
+                id: "seed-ac-1",
+                subject: "Information & Communication Technology (ICT)",
+                chapter: "Web Design with HTML",
+                questionText: "What is the HTML tag used to create a hyperlink to another page?",
+                answer: "<a> tag",
+                explanation: "The anchor tag <a> is used with the href attribute to establish links to other HTML resources."
+            },
+            {
+                id: "seed-ac-2",
+                subject: "Physics",
+                chapter: "Kinematics",
+                questionText: "A car accelerates uniformly from rest at 2 m/s² for 5 seconds. What is the final velocity of the car?",
+                answer: "10 m/s",
+                explanation: "Using the kinematic formula: v = u + at. Since the car starts from rest, u = 0. Therefore, v = 0 + (2 * 5) = 10 m/s."
+            },
+            {
+                id: "seed-ac-3",
+                subject: "Accounting",
+                chapter: "Trial Balance",
+                questionText: "What is the primary balance type of Rent Expense in accounting accounts?",
+                answer: "Debit balance",
+                explanation: "Under double-entry accounting rules, expense accounts carry a natural Debit balance."
+            }
+        ];
+
+        let questions = [];
+
+        // App Initializations
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeDatabase();
+            populateFilterChapters();
+            applyFilters();
+            setupKeyboardVisibilityHandling();
+            lucide.createIcons();
+        });
+
+        function initializeDatabase() {
+            const stored = localStorage.getItem('study_vault_questions_v3');
+            if (stored) {
+                try {
+                    questions = JSON.parse(stored);
+                } catch (e) {
+                    console.error("Local database error, resetting storage.");
+                    questions = [...seedQuestions];
+                    saveToLocalStorage();
+                }
+            } else {
+                questions = [...seedQuestions];
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('study_vault_questions_v3', JSON.stringify(questions));
+            updateMetrics();
+        }
+
+        // Metrics Summary Engine
+        function updateMetrics() {
+            document.getElementById('stat-total').innerText = questions.length;
+            
+            const groupCounters = { compulsory: 0, science: 0, commerce: 0, arts: 0 };
+            
+            questions.forEach(q => {
+                const grp = subjectGroupMap[q.subject] || 'compulsory';
+                if (groupCounters[grp] !== undefined) {
+                    groupCounters[grp]++;
+                }
+            });
+
+            document.getElementById('stat-compulsory').innerText = groupCounters.compulsory;
+            document.getElementById('stat-science').innerText = groupCounters.science;
+            document.getElementById('stat-commerce').innerText = groupCounters.commerce;
+            document.getElementById('stat-arts').innerText = groupCounters.arts;
+        }
+
+        // Filter Actions
+        function populateFilterChapters() {
+            const subjectVal = document.getElementById('filter-subject').value;
+            const chapterSelector = document.getElementById('filter-chapter');
+            
+            chapterSelector.innerHTML = '<option value="All">All Chapters</option>';
+            
+            let chaptersToDisplay = [];
+            
+            if (subjectVal === 'All') {
+                const uniqueChaps = [...new Set(questions.map(q => q.chapter))].filter(Boolean);
+                chaptersToDisplay = uniqueChaps;
+            } else {
+                const presets = defaultChaptersBySubject[subjectVal] || [];
+                const customs = questions
+                    .filter(q => q.subject === subjectVal)
+                    .map(q => q.chapter);
+                chaptersToDisplay = [...new Set([...presets, ...customs])];
+            }
+
+            chaptersToDisplay.sort().forEach(chap => {
+                const opt = document.createElement('option');
+                opt.value = chap;
+                opt.innerText = chap;
+                chapterSelector.appendChild(opt);
+            });
+        }
+
+        function onFilterSubjectChange() {
+            populateFilterChapters();
+            applyFilters();
+        }
+
+        function clearFilters() {
+            document.getElementById('search').value = '';
+            document.getElementById('filter-subject').value = 'All';
+            onFilterSubjectChange();
+        }
+
+        function applyFilters() {
+            const searchVal = document.getElementById('search').value.toLowerCase().trim();
+            const subjectVal = document.getElementById('filter-subject').value;
+            const chapterVal = document.getElementById('filter-chapter').value;
+
+            const filtered = questions.filter(q => {
+                const matchesSearch = q.questionText.toLowerCase().includes(searchVal) ||
+                                      q.answer.toLowerCase().includes(searchVal) ||
+                                      (q.explanation && q.explanation.toLowerCase().includes(searchVal)) ||
+                                      q.chapter.toLowerCase().includes(searchVal);
+                
+                const matchesSubject = (subjectVal === 'All' || q.subject === subjectVal);
+                const matchesChapter = (chapterVal === 'All' || q.chapter === chapterVal);
+
+                return matchesSearch && matchesSubject && matchesChapter;
+            });
+
+            renderQuestions(filtered);
+        }
+
+        // Render Cards View
+        function renderQuestions(items) {
+            const container = document.getElementById('questions-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                emptyState.classList.remove('hidden');
+                updateMetrics();
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            items.forEach(q => {
+                const card = document.createElement('div');
+                card.className = "q-card";
+
+                const grp = subjectGroupMap[q.subject] || 'compulsory';
+
+                card.innerHTML = `
+                    <div class="q-card-header">
+                        <div class="badge-list">
+                            <span class="badge badge-${grp}">${q.subject}</span>
+                            <span class="badge-chap">${q.chapter}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button onclick="editQuestion('${q.id}')" class="card-btn card-edit" title="Edit">
+                                <i data-lucide="edit-3" style="width: 15px; height: 15px;"></i>
+                            </button>
+                            <button onclick="deleteQuestion('${q.id}')" class="card-btn card-delete" title="Delete">
+                                <i data-lucide="trash-2" style="width: 15px; height: 15px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="q-text">${escapeHTML(q.questionText)}</div>
+
+                    <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                        <button onclick="toggleCardAnswer('${q.id}')" class="collapse-trigger">
+                            <span id="btn-text-${q.id}">Reveal Answer & Explanation</span>
+                            <i id="btn-icon-${q.id}" data-lucide="chevron-down" style="width: 16px; height: 16px; transition: transform 0.2s;"></i>
+                        </button>
+                        <div id="solution-section-${q.id}" class="collapse-body">
+                            <div class="ans-banner">Correct Answer: <span style="color: var(--text-main); font-weight: 500;">${escapeHTML(q.answer)}</span></div>
+                            ${q.explanation ? `<p style="color: var(--text-muted); margin-top: 6px; white-space: pre-line;">${escapeHTML(q.explanation)}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+            updateMetrics();
+        }
+
+        function toggleCardAnswer(id) {
+            const body = document.getElementById(`solution-section-${id}`);
+            const btnText = document.getElementById(`btn-text-${id}`);
+            const btnIcon = document.getElementById(`btn-icon-${id}`);
+
+            if (body.classList.contains('is-open')) {
+                body.classList.remove('is-open');
+                btnText.innerText = "Reveal Answer & Explanation";
+                btnIcon.style.transform = 'rotate(0deg)';
+            } else {
+                body.classList.add('is-open');
+                btnText.innerText = "Hide Answer & Explanation";
+                btnIcon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Form Select Sync Setup
+        function onFormSubjectChange() {
+            const currentSub = document.getElementById('form-subject').value;
+            const selectChapter = document.getElementById('form-chapter-select');
+            
+            selectChapter.innerHTML = '';
+
+            if (!currentSub) {
+                selectChapter.innerHTML = '<option value="">Choose subject...</option>';
+                return;
+            }
+
+            const presets = defaultChaptersBySubject[currentSub] || [];
+            presets.forEach(chap => {
+                const opt = document.createElement('option');
+                opt.value = chap;
+                opt.innerText = chap;
+                selectChapter.appendChild(opt);
+            });
+
+            const optCustom = document.createElement('option');
+            optCustom.value = "CUSTOM";
+            optCustom.innerText = "-- Enter Custom Chapter --";
+            selectChapter.appendChild(optCustom);
+
+            syncCustomChapterField();
+        }
+
+        function syncCustomChapterField() {
+            const selectValue = document.getElementById('form-chapter-select').value;
+            const customInput = document.getElementById('form-chapter-custom');
+
+            if (selectValue === 'CUSTOM') {
+                customInput.classList.remove('hidden');
+                customInput.setAttribute('required', 'true');
+            } else {
+                customInput.classList.add('hidden');
+                customInput.removeAttribute('required');
+                customInput.value = '';
+            }
+        }
+
+        // Keyboard Visibility & Safe Scroll handling
+        function setupKeyboardVisibilityHandling() {
+            const scrollArea = document.getElementById('modal-scroll-area');
+            const inputs = document.querySelectorAll('#question-form input, #question-form textarea, #question-form select');
+
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    // Small timeout ensures the virtual keyboard layout adjusts first
+                    setTimeout(() => {
+                        const relativeTop = input.offsetTop - scrollArea.offsetTop;
+                        
+                        // Scroll to position target focused input clearly in view
+                        scrollArea.scrollTo({
+                            top: relativeTop - 40,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Fallback browser-level alignment
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 250);
+                });
+            });
+        }
+
+        // Modal triggers
+        function openQuestionModal() {
+            document.getElementById('question-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('modal-title').innerText = 'Add New Question';
+            document.getElementById('form-subject').value = '';
+            onFormSubjectChange();
+
+            document.getElementById('question-modal').classList.add('active');
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('question-modal').classList.remove('active');
+        }
+
+        function closeQuestionModalOnOverlay(event) {
+            if (event.target === document.getElementById('question-modal')) {
+                closeQuestionModal();
+            }
+        }
+
+        // Save action
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const subject = document.getElementById('form-subject').value;
+            
+            const selectVal = document.getElementById('form-chapter-select').value;
+            const customVal = document.getElementById('form-chapter-custom').value;
+            const finalChapterName = selectVal === 'CUSTOM' ? customVal.trim() : selectVal;
+
+            const questionText = document.getElementById('form-text').value.trim();
+            const answer = document.getElementById('form-answer').value.trim();
+            const explanation = document.getElementById('form-explanation').value.trim();
+
+            if (editId) {
+                const idx = questions.findIndex(q => q.id === editId);
+                if (idx !== -1) {
+                    questions[idx] = {
+                        id: editId,
+                        subject,
+                        chapter: finalChapterName,
+                        questionText,
+                        answer,
+                        explanation
+                    };
+                }
+            } else {
+                const newQuestion = {
+                    id: 'q-' + Date.now(),
+                    subject,
+                    chapter: finalChapterName,
+                    questionText,
+                    answer,
+                    explanation
+                };
+                questions.unshift(newQuestion);
+            }
+
+            saveToLocalStorage();
+            populateFilterChapters();
+            applyFilters();
+            closeQuestionModal();
+        }
+
+        function editQuestion(id) {
+            const q = questions.find(item => item.id === id);
+            if (!q) return;
+
+            openQuestionModal();
+            document.getElementById('modal-title').innerText = 'Edit Question';
+            document.getElementById('edit-id').value = q.id;
+            document.getElementById('form-subject').value = q.subject;
+            
+            onFormSubjectChange();
+
+            const selectChapter = document.getElementById('form-chapter-select');
+            const matchingOption = Array.from(selectChapter.options).find(o => o.value === q.chapter);
+            
+            if (matchingOption) {
+                selectChapter.value = q.chapter;
+            } else {
+                selectChapter.value = 'CUSTOM';
+                const customField = document.getElementById('form-chapter-custom');
+                customField.value = q.chapter;
+            }
+            syncCustomChapterField();
+
+            document.getElementById('form-text').value = q.questionText;
+            document.getElementById('form-answer').value = q.answer;
+            document.getElementById('form-explanation').value = q.explanation || '';
+        }
+
+        function deleteQuestion(id) {
+            if (confirm("Are you sure you want to delete this question?")) {
+                questions = questions.filter(item => item.id !== id);
+                saveToLocalStorage();
+                populateFilterChapters();
+                applyFilters();
+            }
+        }
+
+        // Escape helper
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+                                                                               </html>
