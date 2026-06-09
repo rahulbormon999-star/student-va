@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Vault</title>
+    <style>
+        :root { --primary: #4f46e5; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 15px; margin: 0; }
+        .container { max-width: 600px; margin: auto; }
+        
+        .upload-container { position: relative; text-align: center; margin-bottom: 20px; }
+        .main-btn { background: var(--primary); color: white; padding: 12px 30px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .menu { display: none; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: absolute; width: 150px; left: 50%; transform: translateX(-50%); z-index: 10; margin-top: 5px; }
+        .menu button { display: block; width: 100%; padding: 10px; border: none; background: none; border-bottom: 1px solid #eee; cursor: pointer; text-align: center; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; position: relative; }
+        .card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+        .card .icon { font-size: 40px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 80%; max-width: 300px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center;">Study Vault</h2>
+    <div class="upload-container">
+        <button class="main-btn" onclick="toggleMenu()">+ Upload File</button>
+        <div id="uploadMenu" class="menu">
+            <button onclick="pickFile('camera')">📸 Camera</button>
+            <button onclick="pickFile('gallery')">🖼️ Gallery</button>
+            <button onclick="pickFile('file')">📂 File</button>
+        </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <p>Want to delete the file?</p>
+        <button onclick="confirmDelete(true)" style="color:red; border:none; background:none; font-weight:bold;">Delete</button>
+        <button onclick="confirmDelete(false)" style="margin-left:20px; border:none; background:none;">Cancel</button>
+    </div>
+</div>
+ 
+  <div id="viewerModal" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+z-index:9999;
+">
+
+    <button onclick="closeViewer()" style="
+    position:absolute;
+    top:10px;
+    right:10px;
+    z-index:10000;
+    padding:10px;
+    border:none;
+    border-radius:50%;
+    background:white;
+    font-size:18px;">
+        ✕
+    </button>
+
+    <div id="viewerContent" style="
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;">
+    </div>
+
+</div>
+<script>
+    let library = JSON.parse(localStorage.getItem('studyVault')) || [];
+    let deleteId = null;
+
+    function toggleMenu() {
+    const menu = document.getElementById('uploadMenu');
+
+    if(menu.style.display === 'block'){
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+    function pickFile(type) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        if(type === 'camera') {
+    input.accept = 'image/*';
+    input.capture = 'environment';
+}
+else if(type === 'gallery') {
+    input.accept = 'image/*';
+}
+else {
+    input.accept = 'application/pdf,image/*';
+}
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                library.push({ id: Date.now(), name: file.name, type: file.type, data: e.target.result });
+                localStorage.setItem('studyVault', JSON.stringify(library));
+                render();
+            };
+            reader.readAsDataURL(file);
+        };
+        document.body.appendChild(input);
+        input.click();
+        toggleMenu();
+    }
+
+    function openFile(data, type) {
+
+    const modal = document.getElementById("viewerModal");
+    const content = document.getElementById("viewerContent");
+
+    if(type.includes("image")) {
+
+        content.innerHTML = `
+        <img src="${data}"
+        style="
+        max-width:100%;
+        max-height:100%;
+        object-fit:contain;
+        ">
+        `;
+
+    } else {
+
+        content.innerHTML = `
+        <iframe
+        src="${data}"
+        style="
+        width:100%;
+        height:100%;
+        border:none;
+        background:white;
+        ">
+        </iframe>
+        `;
+
+    }
+
+    modal.style.display = "block";
+}
+function closeViewer() {
+    document.getElementById("viewerModal").style.display = "none";
+    document.getElementById("viewerContent").innerHTML = "";
+}
+
+    function render() {
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+
+    library.forEach(item => {
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        // লং প্রেস ডিটেকশন
+        let timer;
+
+        const start = () =>
+            timer = setTimeout(() => {
+                deleteId = item.id;
+                document.getElementById('deleteModal').style.display = 'flex';
+            }, 800);
+
+        const end = () => clearTimeout(timer);
+
+        card.onmousedown = start;
+        card.onmouseup = end;
+        card.ontouchstart = start;
+        card.ontouchend = end;
+
+        const content = item.type.includes('image')
+            ? `<img src="${item.data}">`
+            : `<div class="icon">📄</div>`;
+
+        const fileName = item.type.includes('image')
+            ? ''
+            : `<p style="font-size:10px; margin:5px 0;">${item.name}</p>`;
+
+        card.innerHTML = `
+            ${content}
+            ${fileName}
+            <button onclick="openFile('${item.data}', '${item.type}')" 
+            style="background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">
+                Open
+            </button>
+        `;
+
+        grid.appendChild(card);
+
+    });
+
+}
+
+    function confirmDelete(yes) {
+        if(yes) { library = library.filter(i => i.id !== deleteId); localStorage.setItem('studyVault', JSON.stringify(library)); render(); }
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+    
+    // মেনুর বাইরে ক্লিক করলে মেনু বন্ধ হবে
+document.addEventListener("click", function(event) {
+
+    const menu = document.getElementById("uploadMenu");
+    const uploadBtn = document.querySelector(".main-btn");
+
+    if (
+        !menu.contains(event.target) &&
+        !uploadBtn.contains(event.target)
+    ) {
+        menu.style.display = "none";
+    }
+
+});
+    render();
+</script>
+</body>
+</html>
