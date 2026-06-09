@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Vault - Professional Exam Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --border-color: #e2e8f0;
+      --border-focus: #4f46e5;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Top Bar Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Layout Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 320px 1fr;
+      }
+    }
+
+    /* Standard Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Sidebar Column Blocks */
+    .sidebar-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Exam Countdown Widget */
+    .countdown-display {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      background: #f8fafc;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-color);
+    }
+
+    .countdown-timer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .countdown-unit {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.25rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .countdown-val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .countdown-lbl {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Study Timer (Pomodoro Style) */
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: monospace;
+      color: var(--text-main);
+      letter-spacing: -1px;
+      margin: 0.5rem 0;
+    }
+
+    .timer-modes {
+      display: flex;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .timer-mode-btn {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .timer-mode-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .timer-actions {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 0.5rem;
+    }
+
+    /* Tasks Section Header */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-tabs {
+      display: flex;
+      background: #f1f5f9;
+      padding: 0.25rem;
+      border-radius: var(--radius-md);
+      gap: 0.25rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Task List Style */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 200px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .task-item.completed {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      opacity: 0.75;
+    }
+
+    .task-left-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .task-checkbox {
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 4px;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .task-checkbox.checked {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: #ffffff;
+    }
+
+    .task-checkbox.checked::after {
+      content: "✓";
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .task-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .btn-action-sm {
+      padding: 0.4rem;
+      border-radius: 6px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .btn-action-sm:hover {
+      background: #e2e8f0;
+    }
+
+    /* Empty state placeholder */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    /* Core button styles */
+    button {
+      font-family: var(--font-family);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease-in-out;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    /* Modal Form Overlay */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input, .form-group select {
+      font-family: var(--font-family);
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.7rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--border-focus);
+      background: #ffffff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Task Count Badges */
+    .tab-badge {
+      font-size: 0.65rem;
+      background: #e2e8f0;
+      padding: 0.1rem 0.35rem;
+      border-radius: 99px;
+      margin-left: 0.25rem;
+      color: var(--text-secondary);
+    }
+
+    .tab-btn.active .tab-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Bar -->
+    <header>
+      <div class="brand">
+        <h1>Study Vault</h1>
+        <p>Your centralized exam prep command center</p>
+      </div>
+      <button class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="openExamSetupModal()">
+        📅 Set Exam Date
+      </button>
+    </header>
+
+    <div class="dashboard-grid">
+      
+      <!-- Sidebar Items: Countdown & Timer -->
+      <aside class="sidebar-column">
+        
+        <!-- Exam Countdown Card -->
+        <div class="card">
+          <div class="card-title">🕒 Exam Countdown</div>
+          <div id="countdownWidget">
+            <div class="countdown-display">
+              <p style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);" id="countdownSubject">Set your next exam!</p>
+              <div class="countdown-timer">
+                <div class="countdown-unit">
+                  <div class="countdown-val" id="daysBox">00</div>
+                  <div class="countdown-lbl">Days</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-val" id="hoursBox">00</div>
+                  <div class="countdown-lbl">Hrs</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-val" id="minsBox">00</div>
+                  <div class="countdown-lbl">Min</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-val" id="secsBox">00</div>
+                  <div class="countdown-lbl">Sec</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Study Timer Card (Pomodoro) -->
+        <div class="card">
+          <div class="card-title">⏱️ Study Timer</div>
+          <div class="timer-modes">
+            <button class="timer-mode-btn active" onclick="setTimerMode('study', 25)" id="btnModeStudy">Study (25m)</button>
+            <button class="timer-mode-btn" onclick="setTimerMode('break', 5)" id="btnModeBreak">Break (5m)</button>
+          </div>
+          <div class="timer-display" id="timeOutput">25:00</div>
+          <div class="timer-actions">
+            <button class="btn-primary" style="padding: 0.6rem;" onclick="toggleTimer()" id="btnStartPause">Start</button>
+            <button class="btn-secondary" style="padding: 0.6rem;" onclick="resetTimer()">Reset</button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Main Column: Planner Checklists -->
+      <main class="sidebar-column">
+        
+        <!-- Planner Checklist -->
+        <div class="card" style="flex: 1;">
+          <div class="section-header">
+            <div class="task-tabs">
+              <button class="tab-btn active" onclick="setActiveTab('daily', this)" id="tabDaily">
+                Daily Tasks <span class="tab-badge" id="dailyBadge">0</span>
+              </button>
+              <button class="tab-btn" onclick="setActiveTab('weekly', this)" id="tabWeekly">
+                Weekly Goals <span class="tab-badge" id="weeklyBadge">0</span>
+              </button>
+            </div>
+            <button class="btn-primary" style="padding: 0.45rem 0.85rem; font-size: 0.775rem;" onclick="openTaskModal()">
+              + Add Task
+            </button>
+          </div>
+
+          <div class="task-list" id="taskListContainer">
+            <!-- Dynamic Injection of Tasks -->
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Setup Exam Modal -->
+  <div class="modal" id="examModal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1.05rem; font-weight: 700;">Set Next Exam Date</h3>
+        <button class="btn-secondary" style="padding: 0.2rem 0.4rem; border-radius: 6px;" onclick="closeExamSetupModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label for="examSubjectInput">Subject Name</label>
+        <input type="text" id="examSubjectInput" placeholder="e.g. Physics Final Exam">
+      </div>
+
+      <div class="form-group">
+        <label for="examDateInput">Date & Time</label>
+        <input type="datetime-local" id="examDateInput">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeExamSetupModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveExamTarget()">Set Target</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Task Modal -->
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1.05rem; font-weight: 700;" id="taskModalTitle">Add New Task</h3>
+        <button class="btn-secondary" style="padding: 0.2rem 0.4rem; border-radius: 6px;" onclick="closeTaskModal()">✕</button>
+      </div>
+
+      <input type="hidden" id="editTaskId">
+
+      <div class="form-group">
+        <label for="taskTitleInput">Task Description</label>
+        <input type="text" id="taskTitleInput" placeholder="e.g. Read Chapter 4 and practice formulas">
+      </div>
+
+      <div class="form-group">
+        <label for="taskTypeInput">Planner Scope</label>
+        <select id="taskTypeInput">
+          <option value="daily">Daily Task</option>
+          <option value="weekly">Weekly Goal</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeTaskModal()">Cancel</button>
+        <button class="btn-primary" onclick="commitTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTML5 Audio Beep (Alternative context synthesizer is backup) -->
+  <audio id="beepAudio" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
+
+  <script>
+    // State management
+    let tasks = [];
+    let examTarget = { subject: "", timestamp: null };
+    let currentTab = "daily"; // 'daily' or 'weekly'
+
+    // Timer state configurations
+    let timerDuration = 1500; // 25 mins base
+    let timerRemaining = 1500;
+    let timerInstance = null;
+    let activeTimerType = 'study'; // 'study' or 'break'
+
+    // App Initialization
+    function initApp() {
+      // Load Tasks
+      const savedTasks = localStorage.getItem('sv_planner_tasks');
+      if (savedTasks) {
+        try { tasks = JSON.parse(savedTasks); } catch (e) { tasks = []; }
+      } else {
+        tasks = [
+          { id: 't1', title: 'Review chemistry laboratory notes', type: 'daily', completed: false },
+          { id: 't2', title: 'Complete math weekly assignment problems', type: 'weekly', completed: false }
+        ];
+        saveTasks();
+      }
+
+      // Load Exam Setup
+      const savedExam = localStorage.getItem('sv_planner_exam');
+      if (savedExam) {
+        try { examTarget = JSON.parse(savedExam); } catch (e) { }
+      }
+
+      refreshAppUI();
+      startIntervalCheckers();
+    }
+
+    // Save states
+    function saveTasks() {
+      localStorage.setItem('sv_planner_tasks', JSON.stringify(tasks));
+    }
+
+    function saveExam() {
+      localStorage.setItem('sv_planner_exam', JSON.stringify(examTarget));
+    }
+
+    function refreshAppUI() {
+      renderTasks();
+      renderCountdown();
+      updateBadges();
+    }
+
+    function updateBadges() {
+      const dailyCount = tasks.filter(t => t.type === 'daily' && !t.completed).length;
+      const weeklyCount = tasks.filter(t => t.type === 'weekly' && !t.completed).length;
+      
+      document.getElementById('dailyBadge').textContent = dailyCount;
+      document.getElementById('weeklyBadge').textContent = weeklyCount;
+    }
+
+    // Active Tab Management
+    function setActiveTab(tabType, el) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+      currentTab = tabType;
+      renderTasks();
+    }
+
+    // Render Tasks
+    function renderTasks() {
+      const container = document.getElementById('taskListContainer');
+      container.innerHTML = '';
+
+      const filtered = tasks.filter(t => t.type === currentTab);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 2rem;">📝</div>
+            <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">No tasks in this list</h4>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Keep your workload clean or add tasks to stay productive.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort uncompleted items to the top
+      filtered.sort((a, b) => a.completed - b.completed);
+
+      filtered.forEach(task => {
+        const item = document.createElement('div');
+        item.className = `task-item ${task.completed ? 'completed' : ''}`;
+        
+        item.innerHTML = `
+          <div class="task-left-block">
+            <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTaskCompletion('${task.id}')"></div>
+            <span class="task-text" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</span>
+          </div>
+          <div class="item-actions">
+            <button class="btn-action-sm" onclick="openEditTaskModal('${task.id}')" title="Edit Task">✏️</button>
+            <button class="btn-action-sm" style="color: var(--hard);" onclick="deleteTask('${task.id}')" title="Delete Task">🗑️</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Toggle Task completion
+    function toggleTaskCompletion(id) {
+      const index = tasks.findIndex(t => t.id === id);
+      if (index > -1) {
+        tasks[index].completed = !tasks[index].completed;
+        saveTasks();
+        refreshAppUI();
+      }
+    }
+
+    // Delete task
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      refreshAppUI();
+    }
+
+    // Modal Add Task managers
+    function openTaskModal() {
+      document.getElementById('taskModalTitle').textContent = "Add New Task";
+      document.getElementById('editTaskId').value = '';
+      document.getElementById('taskTitleInput').value = '';
+      document.getElementById('taskTypeInput').value = currentTab;
+      document.getElementById('taskModal').classList.add('active');
+    }
+
+    function openEditTaskModal(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      document.getElementById('taskModalTitle').textContent = "Edit Task Description";
+      document.getElementById('editTaskId').value = task.id;
+      document.getElementById('taskTitleInput').value = task.title;
+      document.getElementById('taskTypeInput').value = task.type;
+      document.getElementById('taskModal').classList.add('active');
+    }
+
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.remove('active');
+    }
+
+    function commitTask() {
+      const id = document.getElementById('editTaskId').value;
+      const title = document.getElementById('taskTitleInput').value.trim();
+      const type = document.getElementById('taskTypeInput').value;
+
+      if (!title) {
+        alert("Please enter a valid task description.");
+        return;
+      }
+
+      if (id) {
+        // Edit mode
+        const index = tasks.findIndex(t => t.id === id);
+        if (index > -1) {
+          tasks[index].title = title;
+          tasks[index].type = type;
+        }
+      } else {
+        // Add Mode
+        const newTask = {
+          id: Date.now().toString(),
+          title: title,
+          type: type,
+          completed: false
+        };
+        tasks.push(newTask);
+      }
+
+      saveTasks();
+      refreshAppUI();
+      closeTaskModal();
+    }
+
+    // Exam target setup
+    function openExamSetupModal() {
+      document.getElementById('examSubjectInput').value = examTarget.subject || '';
+      if (examTarget.timestamp) {
+        const d = new Date(examTarget.timestamp);
+        // Correct to local iso formatting for input setting
+        const isoString = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().substring(0, 16);
+        document.getElementById('examDateInput').value = isoString;
+      } else {
+        document.getElementById('examDateInput').value = '';
+      }
+      document.getElementById('examModal').classList.add('active');
+    }
+
+    function closeExamSetupModal() {
+      document.getElementById('examModal').classList.remove('active');
+    }
+
+    function saveExamTarget() {
+      const subject = document.getElementById('examSubjectInput').value.trim();
+      const dateVal = document.getElementById('examDateInput').value;
+
+      if (!subject || !dateVal) {
+        alert("Please provide both the subject name and the target date.");
+        return;
+      }
+
+      examTarget.subject = subject;
+      examTarget.timestamp = new Date(dateVal).getTime();
+      
+      saveExam();
+      refreshAppUI();
+      closeExamSetupModal();
+    }
+
+    // Live Countdown renderer
+    function renderCountdown() {
+      const subjectBox = document.getElementById('countdownSubject');
+      const daysBox = document.getElementById('daysBox');
+      const hoursBox = document.getElementById('hoursBox');
+      const minsBox = document.getElementById('minsBox');
+      const secsBox = document.getElementById('secsBox');
+
+      if (!examTarget.timestamp) {
+        subjectBox.textContent = "No Exam Target Set";
+        setCountdownNumbers(0, 0, 0, 0);
+        return;
+      }
+
+      const diff = examTarget.timestamp - Date.now();
+      subjectBox.textContent = examTarget.subject;
+
+      if (diff <= 0) {
+        subjectBox.textContent = `${examTarget.subject} (Finished / Ongoing)`;
+        setCountdownNumbers(0, 0, 0, 0);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      setCountdownNumbers(days, hours, minutes, seconds);
+    }
+
+    function setCountdownNumbers(d, h, m, s) {
+      document.getElementById('daysBox').textContent = String(d).padStart(2, '0');
+      document.getElementById('hoursBox').textContent = String(h).padStart(2, '0');
+      document.getElementById('minsBox').textContent = String(m).padStart(2, '0');
+      document.getElementById('secsBox').textContent = String(s).padStart(2, '0');
+    }
+
+    // Interval runners
+    function startIntervalCheckers() {
+      setInterval(() => {
+        renderCountdown();
+      }, 1000);
+    }
+
+    // Pomodoro Timer Engine
+    function setTimerMode(type, minutes) {
+      if (timerInstance) clearInterval(timerInstance);
+      timerInstance = null;
+      document.getElementById('btnStartPause').textContent = "Start";
+      document.getElementById('btnStartPause').classList.remove('btn-secondary');
+      document.getElementById('btnStartPause').classList.add('btn-primary');
+
+      activeTimerType = type;
+      timerDuration = minutes * 60;
+      timerRemaining = timerDuration;
+
+      // Active toggler
+      document.getElementById('btnModeStudy').classList.remove('active');
+      document.getElementById('btnModeBreak').classList.remove('active');
+      if (type === 'study') {
+        document.getElementById('btnModeStudy').classList.add('active');
+      } else {
+        document.getElementById('btnModeBreak').classList.add('active');
+      }
+
+      updateTimerOutput();
+    }
+
+    function updateTimerOutput() {
+      const min = Math.floor(timerRemaining / 60);
+      const sec = timerRemaining % 60;
+      document.getElementById('timeOutput').textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+      const startBtn = document.getElementById('btnStartPause');
+      if (timerInstance) {
+        // Pause sequence
+        clearInterval(timerInstance);
+        timerInstance = null;
+        startBtn.textContent = "Resume";
+      } else {
+        // Start sequence
+        startBtn.textContent = "Pause";
+        timerInstance = setInterval(() => {
+          if (timerRemaining <= 0) {
+            handleTimerAlarm();
+          } else {
+            timerRemaining--;
+            updateTimerOutput();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      if (timerInstance) clearInterval(timerInstance);
+      timerInstance = null;
+      timerRemaining = timerDuration;
+      document.getElementById('btnStartPause').textContent = "Start";
+      updateTimerOutput();
+    }
+
+    function handleTimerAlarm() {
+      clearInterval(timerInstance);
+      timerInstance = null;
+      document.getElementById('btnStartPause').textContent = "Start";
+      
+      // Ring sound Alert
+      const alarmSound = document.getElementById('beepAudio');
+      if (alarmSound) {
+        alarmSound.play().catch(() => {
+          // Play browser synthesis if direct file loading is restricted
+          try {
+            let context = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = context.createOscillator();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(800, context.currentTime);
+            osc.connect(context.destination);
+            osc.start();
+            osc.stop(context.currentTime + 0.5);
+          } catch (e) { }
+        });
+      }
+
+      alert(activeTimerType === 'study' ? "Study block completed! Take a break." : "Break completed! Back to focus.");
+      
+      // Auto toggle mode to simplify flow
+      if (activeTimerType === 'study') {
+        setTimerMode('break', 5);
+      } else {
+        setTimerMode('study', 25);
+      }
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Launch core app sequence
+    window.onload = initApp;
+  </script>
+</body>
+</html>
