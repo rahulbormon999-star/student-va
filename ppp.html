@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Vault - Progress Dashboard</title>
+    <style>
+        /* CSS Variables for Light Modern Analytics Theme */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            /* Accents */
+            --color-notes: #4f46e5;       /* Indigo */
+            --color-notes-bg: #eef2ff;
+            --color-pdfs: #06b6d4;        /* Cyan */
+            --color-pdfs-bg: #ecfeff;
+            --color-cards: #d946ef;       /* Fuchsia */
+            --color-cards-bg: #fdf4ff;
+            --color-tasks: #10b981;       /* Emerald */
+            --color-tasks-bg: #ecfdf5;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Global Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 12px;
+            min-height: 100vh;
+        }
+
+        /* Responsive Layout Container */
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 8px 4px 48px 4px;
+        }
+
+        /* Header Style */
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        @media (min-width: 640px) {
+            .app-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+        }
+
+        .header-title h1 {
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .header-title p {
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-tasks);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        /* Responsive Statistics Grid */
+        /* Will auto-wrap to single column on tiny screens, dual column on mobile, 4-column on desktop */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+            }
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: clamp(1.4rem, 4.5vw, 1.8rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Themes for individual stat cards */
+        .card-notes .stat-icon { background-color: var(--color-notes-bg); color: var(--color-notes); }
+        .card-pdfs .stat-icon { background-color: var(--color-pdfs-bg); color: var(--color-pdfs); }
+        .card-cards .stat-icon { background-color: var(--color-cards-bg); color: var(--color-cards); }
+        .card-tasks .stat-icon { background-color: var(--color-tasks-bg); color: var(--color-tasks); }
+
+        /* Dashboard Main Layout Split */
+        .main-dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .main-dashboard-grid {
+                grid-template-columns: 3fr 2fr;
+                gap: 20px;
+            }
+        }
+
+        /* Panels Shared Styles */
+        .panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .panel-header {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: clamp(1rem, 4vw, 1.15rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Progress Card Designs */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .progress-label-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .progress-name {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-percentage {
+            color: var(--text-secondary);
+        }
+
+        /* Custom Progress Bars */
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: var(--radius-sm);
+            width: 0%;
+            transition: width 0.8s ease-out;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Study Summary Styling */
+        .summary-stats-box {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 480px) and (max-width: 767px) {
+            .summary-stats-box {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .summary-card {
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .summary-num {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-lbl {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Graphical Overview Ring (SVG Circle Progress) */
+        .overall-progress-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 0;
+            gap: 12px;
+        }
+
+        .svg-circle-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .svg-circle-container svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 8;
+        }
+
+        .circle-fill {
+            fill: none;
+            stroke: var(--color-notes);
+            stroke-width: 8;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease-out;
+        }
+
+        .circle-percentage-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Config Drawer / LocalStorage Editor */
+        .settings-drawer {
+            margin-top: 24px;
+            background: var(--bg-card);
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .drawer-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .input-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            width: 100%;
+            background-color: var(--bg-body);
+            transition: var(--transition);
+        }
+
+        .input-field input:focus {
+            border-color: var(--color-notes);
+            box-shadow: 0 0 0 2px var(--color-notes-bg);
+        }
+
+        .btn-update {
+            grid-column: 1 / -1;
+            background-color: var(--color-notes);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 4px;
+        }
+
+        .btn-update:hover {
+            opacity: 0.95;
+        }
+
+        /* Tiny Screen Optimizations */
+        @media (max-width: 350px) {
+            body {
+                padding: 6px;
+            }
+            .dashboard-container {
+                padding-bottom: 24px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .panel {
+                padding: 12px;
+            }
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1>Progress Tracking</h1>
+                <p>Monitor your Study Vault metrics & achievements</p>
+            </div>
+            <div class="header-actions">
+                <div class="sync-badge" title="Data synced with browser LocalStorage">
+                    <span class="sync-dot"></span>
+                    <span>LocalStorage Connected</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Metric Cards -->
+        <section class="stats-grid">
+            <!-- Total Notes Card -->
+            <div class="stat-card card-notes">
+                <div>
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value" id="val-notes">0</div>
+                </div>
+                <div class="stat-label">Total Notes</div>
+            </div>
+
+            <!-- Total PDFs Card -->
+            <div class="stat-card card-pdfs">
+                <div>
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-value" id="val-pdfs">0</div>
+                </div>
+                <div class="stat-label">PDFs Library</div>
+            </div>
+
+            <!-- Flashcards Card -->
+            <div class="stat-card card-cards">
+                <div>
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="val-flashcards">0</div>
+                </div>
+                <div class="stat-label">Flashcards</div>
+            </div>
+
+            <!-- Completed Tasks Card -->
+            <div class="stat-card card-tasks">
+                <div>
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="val-tasks">0</div>
+                </div>
+                <div class="stat-label">Completed Tasks</div>
+            </div>
+        </section>
+
+        <!-- Main Workspace split -->
+        <main class="main-dashboard-grid">
+            
+            <!-- Left: Detailed Progress Bars -->
+            <section class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">🎯 Vault Progress Targets</h2>
+                </div>
+                
+                <div class="progress-list">
+                    <!-- Progress Item 1 -->
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label-group">
+                                <span class="progress-dot" style="background-color: var(--color-notes)"></span>
+                                <span class="progress-name">Notes Creation Target</span>
+                            </span>
+                            <span class="progress-percentage" id="pct-notes">0%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="bar-notes" style="background-color: var(--color-notes);"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span>Target: <strong id="lbl-target-notes">0</strong> notes</span>
+                            <span id="lbl-remain-notes">0 remaining</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Item 2 -->
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label-group">
+                                <span class="progress-dot" style="background-color: var(--color-pdfs)"></span>
+                                <span class="progress-name">PDF Reading Target</span>
+                            </span>
+                            <span class="progress-percentage" id="pct-pdfs">0%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="bar-pdfs" style="background-color: var(--color-pdfs);"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span>Target: <strong id="lbl-target-pdfs">0</strong> PDFs</span>
+                            <span id="lbl-remain-pdfs">0 remaining</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Item 3 -->
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label-group">
+                                <span class="progress-dot" style="background-color: var(--color-cards)"></span>
+                                <span class="progress-name">Flashcard Review</span>
+                            </span>
+                            <span class="progress-percentage" id="pct-flashcards">0%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="bar-flashcards" style="background-color: var(--color-cards);"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span>Reviewed: <strong id="lbl-cur-flashcards">0</strong> cards</span>
+                            <span id="lbl-total-flashcards">Out of 0 total</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Item 4 -->
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label-group">
+                                <span class="progress-dot" style="background-color: var(--color-tasks)"></span>
+                                <span class="progress-name">Daily Task Completion</span>
+                            </span>
+                            <span class="progress-percentage" id="pct-tasks">0%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="bar-tasks" style="background-color: var(--color-tasks);"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span>Completed: <strong id="lbl-cur-tasks">0</strong> tasks</span>
+                            <span id="lbl-total-tasks">Out of 0 total</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Study Summary -->
+            <section class="panel" style="display: flex; flex-direction: column; justify-content: space-between; gap: 20px;">
+                <div>
+                    <div class="panel-header" style="margin-bottom: 8px;">
+                        <h2 class="panel-title">📊 Overall Stats Summary</h2>
+                    </div>
+                    
+                    <div class="overall-progress-widget">
+                        <div class="svg-circle-container">
+                            <svg>
+                                <circle class="circle-bg" cx="60" cy="60" r="45"></circle>
+                                <circle class="circle-fill" id="circle-overall" cx="60" cy="60" r="45"></circle>
+                            </svg>
+                            <span class="circle-percentage-text" id="overall-percentage">0%</span>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; font-weight: 500;">
+                            Global Study Completion Rating
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-stats-box">
+                    <div class="summary-card">
+                        <span class="summary-num" id="sum-items">0</span>
+                        <span class="summary-lbl">Resources Created</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-num" id="sum-streak">3 Days</span>
+                        <span class="summary-lbl">Study Streak</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- LocalStorage Data Simulator Panel -->
+        <section class="settings-drawer">
+            <h3 class="drawer-title">⚙️ Data Simulator (Interactive Control)</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Change values below to update the values in <code>localStorage</code>. The page will immediately recalculate the analytics.
+            </p>
+            <form id="data-simulator-form" onsubmit="saveSimulatedData(event)">
+                <div class="input-grid">
+                    <div class="input-field">
+                        <label for="input-notes">Notes Created</label>
+                        <input type="number" id="input-notes" min="0" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-target-notes">Notes Target</label>
+                        <input type="number" id="input-target-notes" min="1" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-pdfs">PDFs Studied</label>
+                        <input type="number" id="input-pdfs" min="0" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-target-pdfs">PDFs Target</label>
+                        <input type="number" id="input-target-pdfs" min="1" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-flash-rev">Flashcard Reviewed</label>
+                        <input type="number" id="input-flash-rev" min="0" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-flash-tot">Total Flashcards</label>
+                        <input type="number" id="input-flash-tot" min="1" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-task-done">Tasks Completed</label>
+                        <input type="number" id="input-task-done" min="0" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="input-task-tot">Total Tasks Set</label>
+                        <input type="number" id="input-task-tot" min="1" required>
+                    </div>
+                    <button type="submit" class="btn-update">Update LocalStorage & Sync Dashboard</button>
+                </div>
+            </form>
+        </section>
+
+    </div>
+
+    <script>
+        // Storage Keys Setup
+        const KEYS = {
+            notes: 'sv_total_notes',
+            notesTarget: 'sv_target_notes',
+            pdfs: 'sv_total_pdfs',
+            pdfsTarget: 'sv_target_pdfs',
+            flashcards: 'sv_total_flashcards',
+            flashcardsReviewed: 'sv_reviewed_flashcards',
+            tasks: 'sv_completed_tasks',
+            tasksTotal: 'sv_total_tasks',
+            streak: 'sv_study_streak'
+        };
+
+        // Initialize LocalStorage with default values if empty
+        function initializeDefaultData() {
+            const defaults = {
+                [KEYS.notes]: '18',
+                [KEYS.notesTarget]: '30',
+                [KEYS.pdfs]: '9',
+                [KEYS.pdfsTarget]: '12',
+                [KEYS.flashcards]: '150',
+                [KEYS.flashcardsReviewed]: '112',
+                [KEYS.tasks]: '6',
+                [KEYS.tasksTotal]: '8',
+                [KEYS.streak]: '5'
+            };
+
+            for (const [key, val] of Object.entries(defaults)) {
+                if (localStorage.getItem(key) === null) {
+                    localStorage.setItem(key, val);
+                }
+            }
+        }
+
+        // Fetch metrics safely
+        function getMetric(key) {
+            return parseInt(localStorage.getItem(key)) || 0;
+        }
+
+        // Main Rendering Function
+        function renderDashboard() {
+            // Retrieve data
+            const notes = getMetric(KEYS.notes);
+            const notesTarget = Math.max(getMetric(KEYS.notesTarget), 1);
+            const pdfs = getMetric(KEYS.pdfs);
+            const pdfsTarget = Math.max(getMetric(KEYS.pdfsTarget), 1);
+            const flashcards = Math.max(getMetric(KEYS.flashcards), 1);
+            const flashcardsReviewed = getMetric(KEYS.flashcardsReviewed);
+            const tasks = getMetric(KEYS.tasks);
+            const tasksTotal = Math.max(getMetric(KEYS.tasksTotal), 1);
+            const streak = getMetric(KEYS.streak) || 1;
+
+            // Compute Percentages
+            const pctNotes = Math.min(Math.round((notes / notesTarget) * 100), 100);
+            const pctPdfs = Math.min(Math.round((pdfs / pdfsTarget) * 100), 100);
+            const pctFlashcards = Math.min(Math.round((flashcardsReviewed / flashcards) * 100), 100);
+            const pctTasks = Math.min(Math.round((tasks / tasksTotal) * 100), 100);
+
+            // Compute Global Completion Average
+            const overallPct = Math.round((pctNotes + pctPdfs + pctFlashcards + pctTasks) / 4);
+
+            // Update Statistics Cards Counters
+            document.getElementById('val-notes').innerText = notes;
+            document.getElementById('val-pdfs').innerText = pdfs;
+            document.getElementById('val-flashcards').innerText = flashcards;
+            document.getElementById('val-tasks').innerText = tasks;
+
+            // Update Notes Progress Bar
+            document.getElementById('pct-notes').innerText = `${pctNotes}%`;
+            document.getElementById('bar-notes').style.width = `${pctNotes}%`;
+            document.getElementById('lbl-target-notes').innerText = notesTarget;
+            const notesRemain = Math.max(notesTarget - notes, 0);
+            document.getElementById('lbl-remain-notes').innerText = `${notesRemain} remaining`;
+
+            // Update PDFs Progress Bar
+            document.getElementById('pct-pdfs').innerText = `${pctPdfs}%`;
+            document.getElementById('bar-pdfs').style.width = `${pctPdfs}%`;
+            document.getElementById('lbl-target-pdfs').innerText = pdfsTarget;
+            const pdfsRemain = Math.max(pdfsTarget - pdfs, 0);
+            document.getElementById('lbl-remain-pdfs').innerText = `${pdfsRemain} remaining`;
+
+            // Update Flashcards Progress Bar
+            document.getElementById('pct-flashcards').innerText = `${pctFlashcards}%`;
+            document.getElementById('bar-flashcards').style.width = `${pctFlashcards}%`;
+            document.getElementById('lbl-cur-flashcards').innerText = flashcardsReviewed;
+            document.getElementById('lbl-total-flashcards').innerText = `Out of ${flashcards} total`;
+
+            // Update Tasks Progress Bar
+            document.getElementById('pct-tasks').innerText = `${pctTasks}%`;
+            document.getElementById('bar-tasks').style.width = `${pctTasks}%`;
+            document.getElementById('lbl-cur-tasks').innerText = tasks;
+            document.getElementById('lbl-total-tasks').innerText = `Out of ${tasksTotal} total`;
+
+            // Update Overall Radial Indicator
+            document.getElementById('overall-percentage').innerText = `${overallPct}%`;
+            const strokeOffset = 283 - (283 * overallPct) / 100;
+            document.getElementById('circle-overall').style.strokeDashoffset = strokeOffset;
+
+            // Color adjustments for radial gauge depending on completion state
+            let radialColor = 'var(--color-notes)'; // Default Indigo
+            if (overallPct >= 80) radialColor = 'var(--color-tasks)'; // Green for great progress
+            else if (overallPct < 40) radialColor = 'var(--color-cards)'; // Fuchsia for early progress
+            document.getElementById('circle-overall').style.stroke = radialColor;
+
+            // Update Summary Sub-cards
+            document.getElementById('sum-items').innerText = notes + pdfs;
+            document.getElementById('sum-streak').innerText = `${streak} Days`;
+
+            // Populate Form inputs so simulator stays aligned
+            document.getElementById('input-notes').value = notes;
+            document.getElementById('input-target-notes').value = notesTarget;
+            document.getElementById('input-pdfs').value = pdfs;
+            document.getElementById('input-target-pdfs').value = pdfsTarget;
+            document.getElementById('input-flash-rev').value = flashcardsReviewed;
+            document.getElementById('input-flash-tot').value = flashcards;
+            document.getElementById('input-task-done').value = tasks;
+            document.getElementById('input-task-tot').value = tasksTotal;
+        }
+
+        // Save Simulated updates back to LocalStorage
+        function saveSimulatedData(event) {
+            event.preventDefault();
+
+            localStorage.setItem(KEYS.notes, document.getElementById('input-notes').value);
+            localStorage.setItem(KEYS.notesTarget, document.getElementById('input-target-notes').value);
+            localStorage.setItem(KEYS.pdfs, document.getElementById('input-pdfs').value);
+            localStorage.setItem(KEYS.pdfsTarget, document.getElementById('input-target-pdfs').value);
+            localStorage.setItem(KEYS.flashcardsReviewed, document.getElementById('input-flash-rev').value);
+            localStorage.setItem(KEYS.flashcards, document.getElementById('input-flash-tot').value);
+            localStorage.setItem(KEYS.tasks, document.getElementById('input-task-done').value);
+            localStorage.setItem(KEYS.tasksTotal, document.getElementById('input-task-tot').value);
+
+            // Re-render
+            renderDashboard();
+        }
+
+        // Init routine on window load
+        window.addEventListener('load', () => {
+            initializeDefaultData();
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
