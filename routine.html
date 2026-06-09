@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Routine Planner - Study Vault</title>
+  
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* CSS Variables for Material Design 3 and Light/Dark Themes */
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      
+      /* Routine Type Colors */
+      --color-school: #3b82f6;      /* Blue */
+      --color-coaching: #8b5cf6;    /* Purple */
+      --color-private: #f97316;     /* Orange */
+      --color-self: #10b981;        /* Emerald */
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary-light: #312e81;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background-color 0.3s ease;
+    }
+
+    /* PWA Mobile-First Container */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--background);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    [data-theme="dark"] header {
+      background-color: rgba(15, 23, 42, 0.85);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    .header-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .icon-btn:active {
+      background-color: var(--primary-light);
+    }
+
+    /* Main Section */
+    main {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Info Cards (Next Class & Quick Look) */
+    .next-class-card {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .next-class-card::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .next-class-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .next-class-subject {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .next-class-meta {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .action-btn {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .action-btn svg {
+      color: var(--primary);
+    }
+
+    .action-btn:active {
+      background-color: var(--primary-light);
+      transform: scale(0.96);
+    }
+
+    /* Weekly Timetable Selector */
+    .weekly-scroll-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .days-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none; /* Hide scrollbar on Firefox */
+    }
+
+    .days-row::-webkit-scrollbar {
+      display: none; /* Hide scrollbar on Chrome/Safari */
+    }
+
+    .day-tab {
+      flex: 0 0 calc(100% / 5.5); /* Perfect sizing for small to large phones */
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .day-tab-name {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .day-tab-letter {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .day-tab.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .day-tab.active .day-tab-name,
+    .day-tab.active .day-tab-letter {
+      color: #ffffff;
+    }
+
+    .day-tab.is-today {
+      border: 1.5px solid var(--primary);
+    }
+
+    /* Search & Filters */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input-wrapper input {
+      width: 100%;
+      padding: 10px 12px 10px 34px;
+      font-size: 0.85rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input-wrapper input:focus {
+      border-color: var(--primary);
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    /* Routine Cards List */
+    .routine-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .routine-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .subject-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subject-color-tag {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .subject-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .type-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      color: #ffffff;
+    }
+
+    .type-school { background-color: var(--color-school); }
+    .type-coaching { background-color: var(--color-coaching); }
+    .type-private { background-color: var(--color-private); }
+    .type-self { background-color: var(--color-self); }
+
+    .card-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 8px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Homework Inline Section */
+    .homework-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .homework-header {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .add-hw-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .homework-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .homework-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      background-color: var(--background);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .hw-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .hw-checkbox {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1.5px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .hw-checkbox.checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .hw-text {
+      color: var(--text-main);
+    }
+
+    .hw-checkbox.checked + .hw-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .delete-hw-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+    }
+
+    /* Card Actions (Edit, Delete) */
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+
+    .edit-routine-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .delete-routine-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* Empty Fallback State */
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text-muted);
+      background-color: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Bottom Modal/Sheet Style */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .modal-sheet {
+      background-color: var(--surface);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Custom Color Selector in Form */
+    .color-picker-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-option {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+    }
+
+    .color-option.selected {
+      border-color: var(--text-main);
+      transform: scale(1.1);
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .submit-btn:active {
+      background-color: var(--primary-hover);
+    }
+
+    /* Adjustments for landscape / tablet displays */
+    @media (min-width: 480px) {
+      .app-container {
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        margin: 20px 0;
+        min-height: calc(100vh - 40px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="header-left">
+        <button class="back-btn" onclick="window.history.back()" aria-label="Go Back">
+          <i data-lucide="arrow-left" size="20"></i>
+        </button>
+        <div class="header-title">
+          <h1>Routine Planner</h1>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Toggle Dark Mode -->
+        <button class="icon-btn" id="theme-toggle-btn" aria-label="Toggle Dark Mode">
+          <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+
+      <!-- Next Class Alert Card -->
+      <section class="next-class-card" id="next-class-view">
+        <div class="next-class-label">
+          <span class="pulse-dot"></span> Next Class
+        </div>
+        <div class="next-class-subject" id="next-class-name">No Classes Left Today</div>
+        <div class="next-class-meta">
+          <span id="next-class-time"><i data-lucide="clock" size="14" style="vertical-align:-2px"></i> - </span>
+          <span id="next-class-type"><i data-lucide="tag" size="14" style="vertical-align:-2px"></i> - </span>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <button class="action-btn" id="qa-add-routine">
+          <i data-lucide="plus-circle" size="20"></i>
+          Add Routine
+        </button>
+        <button class="action-btn" id="qa-today">
+          <i data-lucide="calendar-check" size="20"></i>
+          Today's Routine
+        </button>
+        <button class="action-btn" id="qa-weekly">
+          <i data-lucide="calendar" size="20"></i>
+          Weekly View
+        </button>
+      </section>
+
+      <!-- Weekly Timetable View -->
+      <section class="weekly-scroll-container">
+        <div class="section-title">
+          <span id="timetable-title">Weekly Schedule</span>
+        </div>
+        <div class="days-row" id="days-row">
+          <!-- Day Tabs injected dynamically -->
+        </div>
+      </section>
+
+      <!-- Search & Filters -->
+      <section class="filter-bar">
+        <div class="search-input-wrapper">
+          <i data-lucide="search" size="16"></i>
+          <input type="search" id="search-routine" placeholder="Search subject or type...">
+        </div>
+      </section>
+
+      <!-- Routine List Container -->
+      <section class="routine-list" id="routine-list-container">
+        <!-- Routine Cards and homework will be rendered here -->
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Modal/Sheet for adding/editing Routine -->
+  <div class="modal-overlay" id="routine-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title-text">Add New Routine</div>
+        <button class="close-modal-btn" id="close-modal-btn">
+          <i data-lucide="x" size="20"></i>
+        </button>
+      </div>
+      <form id="routine-form" onsubmit="saveRoutine(event)">
+        <input type="hidden" id="edit-id">
+        
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject Name</label>
+          <input type="text" id="subject" class="form-control" placeholder="e.g., Mathematics" required>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="day">Day</label>
+            <select id="day" class="form-control" required>
+              <option value="Sunday">Sunday</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="type">Routine Type</label>
+            <select id="type" class="form-control" required>
+              <option value="School">School</option>
+              <option value="Coaching">Coaching</option>
+              <option value="Private">Private Tutor</option>
+              <option value="Self Study">Self Study</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="start-time">Start Time</label>
+            <input type="time" id="start-time" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="end-time">End Time</label>
+            <input type="time" id="end-time" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Tag Color Choice -->
+        <div class="form-group">
+          <label class="form-label">Subject Color Tag</label>
+          <div class="color-picker-row">
+            <div class="color-option selected" style="background-color: #3b82f6;" data-color="#3b82f6"></div>
+            <div class="color-option" style="background-color: #10b981;" data-color="#10b981"></div>
+            <div class="color-option" style="background-color: #f97316;" data-color="#f97316"></div>
+            <div class="color-option" style="background-color: #8b5cf6;" data-color="#8b5cf6"></div>
+            <div class="color-option" style="background-color: #ec4899;" data-color="#ec4899"></div>
+            <div class="color-option" style="background-color: #eab308;" data-color="#eab308"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <i data-lucide="check" size="18"></i>
+          Save Routine
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal/Sheet for adding Homework -->
+  <div class="modal-overlay" id="hw-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Add Homework</div>
+        <button class="close-modal-btn" id="close-hw-modal-btn">
+          <i data-lucide="x" size="20"></i>
+        </button>
+      </div>
+      <form id="hw-form" onsubmit="saveHomework(event)">
+        <input type="hidden" id="hw-routine-id">
+        <div class="form-group">
+          <label class="form-label" for="hw-task">Homework Description</label>
+          <input type="text" id="hw-task" class="form-control" placeholder="e.g., Solve Exercise 5 (Page 22)" required>
+        </div>
+        <button type="submit" class="submit-btn">
+          <i data-lucide="plus" size="18"></i>
+          Add Homework
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // System days array
+    const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    // In-memory application state
+    let routines = [];
+    let currentSelectedDay = "";
+    let selectedColorTag = "#3b82f6"; // Default color choice
+
+    // Initialize Page
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTheme();
+      initDefaultRoutines();
+      detectCurrentDay();
+      renderDaysSelector();
+      renderRoutines();
+      updateNextClass();
+      
+      // Initialize icons
+      lucide.createIcons();
+    });
+
+    // Detect and select current day by default
+    function detectCurrentDay() {
+      const todayIndex = new Date().getDay();
+      currentSelectedDay = DAYS[todayIndex];
+    }
+
+    // Load theme setting
+    function loadTheme() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    // Toggle and save theme setting
+    document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+      let currentTheme = document.documentElement.getAttribute("data-theme");
+      let targetTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", targetTheme);
+      localStorage.setItem("theme", targetTheme);
+      updateThemeIcon(targetTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      const iconContainer = document.getElementById("theme-icon");
+      if (theme === "dark") {
+        iconContainer.setAttribute("data-lucide", "sun");
+      } else {
+        iconContainer.setAttribute("data-lucide", "moon");
+      }
+      lucide.createIcons();
+    }
+
+    // Load from local storage or set default preview values
+    function initDefaultRoutines() {
+      const localData = localStorage.getItem("study_vault_routines");
+      if (localData) {
+        routines = JSON.parse(localData);
+      } else {
+        // Sample standard routine data for showcase on initial load
+        routines = [
+          {
+            id: "1",
+            subject: "Mathematics",
+            day: DAYS[new Date().getDay()], // Dynamically matches today for presentation
+            startTime: "08:30",
+            endTime: "10:00",
+            type: "School",
+            color: "#3b82f6",
+            homework: [
+              { id: "hw1", text: "Solve Exercise 5.2", completed: false },
+              { id: "hw2", text: "Complete notebook page 22", completed: true }
+            ]
+          },
+          {
+            id: "2",
+            subject: "Physics",
+            day: DAYS[new Date().getDay()],
+            startTime: "11:15",
+            endTime: "12:45",
+            type: "Coaching",
+            color: "#10b981",
+            homework: []
+          },
+          {
+            id: "3",
+            subject: "Chemistry",
+            day: DAYS[(new Date().getDay() + 1) % 7], // Tomorrow
+            startTime: "14:00",
+            endTime: "15:30",
+            type: "Private",
+            color: "#8b5cf6",
+            homework: []
+          }
+        ];
+        saveToLocalStorage();
+      }
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem("study_vault_routines", JSON.stringify(routines));
+    }
+
+    // Color picker handler
+    const colorOptions = document.querySelectorAll(".color-option");
+    colorOptions.forEach(opt => {
+      opt.addEventListener("click", () => {
+        colorOptions.forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        selectedColorTag = opt.getAttribute("data-color");
+      });
+    });
+
+    // Modal Control Helper
+    const routineModal = document.getElementById("routine-modal");
+    const hwModal = document.getElementById("hw-modal");
+
+    document.getElementById("qa-add-routine").addEventListener("click", () => {
+      openRoutineModal();
+    });
+
+    document.getElementById("close-modal-btn").addEventListener("click", () => {
+      closeRoutineModal();
+    });
+
+    document.getElementById("close-hw-modal-btn").addEventListener("click", () => {
+      hwModal.style.display = "none";
+    });
+
+    function openRoutineModal(editId = null) {
+      const titleText = document.getElementById("modal-title-text");
+      const form = document.getElementById("routine-form");
+      
+      form.reset();
+      
+      // Auto-set standard defaults
+      document.getElementById("day").value = currentSelectedDay;
+      document.getElementById("edit-id").value = "";
+      
+      // Select first color option by default
+      colorOptions.forEach(o => o.classList.remove("selected"));
+      colorOptions[0].classList.add("selected");
+      selectedColorTag = colorOptions[0].getAttribute("data-color");
+
+      if (editId) {
+        const item = routines.find(r => r.id === editId);
+        if (item) {
+          titleText.textContent = "Edit Routine";
+          document.getElementById("edit-id").value = item.id;
+          document.getElementById("subject").value = item.subject;
+          document.getElementById("day").value = item.day;
+          document.getElementById("type").value = item.type;
+          document.getElementById("start-time").value = item.startTime;
+          document.getElementById("end-time").value = item.endTime;
+          
+          // Select stored color
+          colorOptions.forEach(o => {
+            o.classList.remove("selected");
+            if (o.getAttribute("data-color") === item.color) {
+              o.classList.add("selected");
+              selectedColorTag = item.color;
+            }
+          });
+        }
+      } else {
+        titleText.textContent = "Add New Routine";
+      }
+      
+      routineModal.style.display = "flex";
+    }
+
+    function closeRoutineModal() {
+      routineModal.style.display = "none";
+    }
+
+    // Quick Actions
+    document.getElementById("qa-today").addEventListener("click", () => {
+      detectCurrentDay();
+      renderDaysSelector();
+      renderRoutines();
+    });
+
+    document.getElementById("qa-weekly").addEventListener("click", () => {
+      // Highlights the entire list view filtering
+      alert("Click on any specific weekday in the timetable bar below to browse individual day plans.");
+    });
+
+    // Save/Update Routine
+    function saveRoutine(e) {
+      e.preventDefault();
+      
+      const editId = document.getElementById("edit-id").value;
+      const subject = document.getElementById("subject").value.trim();
+      const day = document.getElementById("day").value;
+      const type = document.getElementById("type").value;
+      const startTime = document.getElementById("start-time").value;
+      const endTime = document.getElementById("end-time").value;
+
+      if (editId) {
+        // Edit existing
+        const index = routines.findIndex(r => r.id === editId);
+        if (index !== -1) {
+          routines[index].subject = subject;
+          routines[index].day = day;
+          routines[index].type = type;
+          routines[index].startTime = startTime;
+          routines[index].endTime = endTime;
+          routines[index].color = selectedColorTag;
+        }
+      } else {
+        // Add new
+        const newRoutine = {
+          id: Date.now().toString(),
+          subject: subject,
+          day: day,
+          type: type,
+          startTime: startTime,
+          endTime: endTime,
+          color: selectedColorTag,
+          homework: []
+        };
+        routines.push(newRoutine);
+      }
+
+      saveToLocalStorage();
+      closeRoutineModal();
+      
+      // Maintain state focus
+      currentSelectedDay = day;
+      renderDaysSelector();
+      renderRoutines();
+      updateNextClass();
+    }
+
+    // Delete Routine
+    function deleteRoutine(id) {
+      if (confirm("Are you sure you want to delete this routine?")) {
+        routines = routines.filter(r => r.id !== id);
+        saveToLocalStorage();
+        renderRoutines();
+        updateNextClass();
+      }
+    }
+
+    // Rendering Week Selector Tabs dynamically
+    function renderDaysSelector() {
+      const container = document.getElementById("days-row");
+      const todayIndex = new Date().getDay();
+      const todayName = DAYS[todayIndex];
+
+      container.innerHTML = "";
+
+      DAYS.forEach(day => {
+        const isSelected = day === currentSelectedDay;
+        const isToday = day === todayName;
+
+        const tab = document.createElement("div");
+        tab.className = `day-tab ${isSelected ? 'active' : ''} ${isToday ? 'is-today' : ''}`;
+        
+        tab.innerHTML = `
+          <span class="day-tab-name">${day.substring(0,3)}</span>
+          <span class="day-tab-letter">${day.substring(0,1)}</span>
+        `;
+
+        tab.addEventListener("click", () => {
+          currentSelectedDay = day;
+          renderDaysSelector();
+          renderRoutines();
+        });
+
+        container.appendChild(tab);
+      });
+    }
+
+    // Search Routine Input Handlers
+    document.getElementById("search-routine").addEventListener("input", () => {
+      renderRoutines();
+    });
+
+    // Helper for beautiful 12-Hour conversion
+    function formatTo12Hour(timeString) {
+      const [hourStr, minStr] = timeString.split(":");
+      let hour = parseInt(hourStr);
+      const min = minStr;
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      hour = hour ? hour : 12; // if hour is 0, make it 12
+      return `${hour}:${min} ${ampm}`;
+    }
+
+    // Render Routines matching search filter and active day
+    function renderRoutines() {
+      const listContainer = document.getElementById("routine-list-container");
+      const searchQuery = document.getElementById("search-routine").value.toLowerCase();
+      
+      listContainer.innerHTML = "";
+
+      // Sort routines by start time chronologically
+      const dayFiltered = routines
+        .filter(r => r.day === currentSelectedDay)
+        .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+      // Filter by search query
+      const searchFiltered = dayFiltered.filter(r => {
+        return r.subject.toLowerCase().includes(searchQuery) || 
+               r.type.toLowerCase().includes(searchQuery);
+      });
+
+      if (searchFiltered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="empty-state">
+            <i data-lucide="calendar-range" size="28"></i>
+            <p>No routine scheduled for ${currentSelectedDay}.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      searchFiltered.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "routine-card";
+        
+        // Define clean custom badge class
+        let typeBadgeClass = 'type-school';
+        if (item.type === "Coaching") typeBadgeClass = 'type-coaching';
+        if (item.type === "Private") typeBadgeClass = 'type-private';
+        if (item.type === "Self Study") typeBadgeClass = 'type-self';
+
+        // Format times
+        const displayStart = formatTo12Hour(item.startTime);
+        const displayEnd = formatTo12Hour(item.endTime);
+
+        // Homework element generator
+        let hwItemsHTML = "";
+        if (item.homework && item.homework.length > 0) {
+          item.homework.forEach(hw => {
+            hwItemsHTML += `
+              <div class="homework-item">
+                <div class="hw-left" onclick="toggleHomeworkStatus('${item.id}', '${hw.id}')">
+                  <div class="hw-checkbox ${hw.completed ? 'checked' : ''}">
+                    ${hw.completed ? '<i data-lucide="check" size="10"></i>' : ''}
+                  </div>
+                  <span class="hw-text">${hw.text}</span>
+                </div>
+                <button class="delete-hw-btn" onclick="deleteHomework('${item.id}', '${hw.id}')" aria-label="Delete Task">
+                  <i data-lucide="trash-2" size="13"></i>
+                </button>
+              </div>
+            `;
+          });
+        } else {
+          hwItemsHTML = `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">No homework active</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="card-header-row">
+            <div class="subject-info">
+              <span class="subject-color-tag" style="background-color: ${item.color};"></span>
+              <span class="subject-name">${item.subject}</span>
+            </div>
+            <span class="type-badge ${typeBadgeClass}">${item.type}</span>
+          </div>
+
+          <div class="card-meta-row">
+            <div class="meta-item">
+              <i data-lucide="clock" size="12"></i>
+              <span>${displayStart} - ${displayEnd}</span>
+            </div>
+            <div class="meta-item">
+              <i data-lucide="calendar" size="12"></i>
+              <span>${item.day}</span>
+            </div>
+          </div>
+
+          <div class="homework-section">
+            <div class="homework-header">
+              <span>HOMEWORK</span>
+              <button class="add-hw-btn" onclick="openHomeworkModal('${item.id}')">
+                <i data-lucide="plus" size="12"></i> Add Task
+              </button>
+            </div>
+            <div class="homework-list">
+              ${hwItemsHTML}
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="edit-routine-btn" onclick="openRoutineModal('${item.id}')">
+              <i data-lucide="edit-3" size="12"></i> Edit
+            </button>
+            <button class="delete-routine-btn" onclick="deleteRoutine('${item.id}')">
+              <i data-lucide="trash-2" size="12"></i> Delete
+            </button>
+          </div>
+        `;
+
+        listContainer.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Dynamic Next Class Logic
+    function updateNextClass() {
+      const todayIndex = new Date().getDay();
+      const todayName = DAYS[todayIndex];
+
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      // Get routines for today, sorted by start time
+      const todayClasses = routines
+        .filter(r => r.day === todayName)
+        .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+      let nextClass = null;
+
+      for (let i = 0; i < todayClasses.length; i++) {
+        const [h, m] = todayClasses[i].startTime.split(":").map(Number);
+        const classStartMinutes = h * 60 + m;
+
+        if (classStartMinutes > currentMinutes) {
+          nextClass = todayClasses[i];
+          break;
+        }
+      }
+
+      const viewContainer = document.getElementById("next-class-view");
+      const nameElem = document.getElementById("next-class-name");
+      const timeElem = document.getElementById("next-class-time");
+      const typeElem = document.getElementById("next-class-type");
+
+      if (nextClass) {
+        nameElem.textContent = nextClass.subject;
+        timeElem.innerHTML = `<i data-lucide="clock" size="14" style="vertical-align:-2px"></i> Starts at ${formatTo12Hour(nextClass.startTime)}`;
+        typeElem.innerHTML = `<i data-lucide="tag" size="14" style="vertical-align:-2px"></i> ${nextClass.type}`;
+        viewContainer.style.opacity = "1";
+      } else {
+        nameElem.textContent = "No Upcoming Classes";
+        timeElem.innerHTML = `<i data-lucide="calendar" size="14" style="vertical-align:-2px"></i> All done for today!`;
+        typeElem.innerHTML = `<i data-lucide="smile" size="14" style="vertical-align:-2px"></i> Relax!`;
+      }
+      lucide.createIcons();
+    }
+
+    // Homework Management Logic
+    function openHomeworkModal(routineId) {
+      document.getElementById("hw-routine-id").value = routineId;
+      document.getElementById("hw-task").value = "";
+      hwModal.style.display = "flex";
+    }
+
+    function saveHomework(e) {
+      e.preventDefault();
+      const routineId = document.getElementById("hw-routine-id").value;
+      const taskText = document.getElementById("hw-task").value.trim();
+
+      const index = routines.findIndex(r => r.id === routineId);
+      if (index !== -1) {
+        if (!routines[index].homework) {
+          routines[index].homework = [];
+        }
+        routines[index].homework.push({
+          id: Date.now().toString(),
+          text: taskText,
+          completed: false
+        });
+        saveToLocalStorage();
+        renderRoutines();
+        hwModal.style.display = "none";
+      }
+    }
+
+    function toggleHomeworkStatus(routineId, hwId) {
+      const rIndex = routines.findIndex(r => r.id === routineId);
+      if (rIndex !== -1) {
+        const hIndex = routines[rIndex].homework.findIndex(h => h.id === hwId);
+        if (hIndex !== -1) {
+          routines[rIndex].homework[hIndex].completed = !routines[rIndex].homework[hIndex].completed;
+          saveToLocalStorage();
+          renderRoutines();
+        }
+      }
+    }
+
+    function deleteHomework(routineId, hwId) {
+      event.stopPropagation(); // Prevents triggers on parent wrapper checkbox click
+      const rIndex = routines.findIndex(r => r.id === routineId);
+      if (rIndex !== -1) {
+        routines[rIndex].homework = routines[rIndex].homework.filter(h => h.id !== hwId);
+        saveToLocalStorage();
+        renderRoutines();
+      }
+    }
+  </script>
+</body>
+  </html>
