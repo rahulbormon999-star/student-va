@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Vault - Notes</title>
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* Themes & Variables */
+    :root {
+      /* Light Theme Colors */
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* Subject Palette (Light Mode Base) */
+      --color-math: #8b5cf6;       /* Violet */
+      --color-physics: #3b82f6;    /* Blue */
+      --color-chemistry: #10b981;  /* Emerald */
+      --color-biology: #f43f5e;    /* Rose */
+      --color-english: #f59e0b;    /* Amber */
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Colors */
+      --background: #0f172a;
+      --surface: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-light: #312e81;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background-color var(--transition), color var(--transition);
+    }
+
+    /* PWA Mobile-First Container */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--background);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding-bottom: 90px; /* Space for FAB */
+      transition: background-color var(--transition), border-color var(--transition);
+    }
+
+    /* Sticky Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background-color var(--transition), border-color var(--transition);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .back-btn:active {
+      background-color: var(--border);
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:active {
+      background-color: var(--border);
+    }
+
+    /* Main Area Container */
+    main {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Search Input Wrapper */
+    .search-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 42px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Subject Folders Horizontal Picker */
+    .subject-folders {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none; /* Hide scrollbar for standard layout */
+    }
+
+    .subject-folders::-webkit-scrollbar {
+      display: none; /* Webkit browser scrollbar hiding */
+    }
+
+    .folder-pill {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .folder-pill:active {
+      transform: scale(0.96);
+    }
+
+    .folder-pill.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* Notes Layout Wrapper */
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Individual Note Card Styling */
+    .note-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .note-card:active {
+      transform: scale(0.99);
+    }
+
+    .note-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .note-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Programmatic Colors based on category classes */
+    .tag-math { background-color: rgba(139, 92, 246, 0.12); color: var(--color-math); }
+    .tag-physics { background-color: rgba(59, 130, 246, 0.12); color: var(--color-physics); }
+    .tag-chemistry { background-color: rgba(16, 185, 129, 0.12); color: var(--color-chemistry); }
+    .tag-biology { background-color: rgba(244, 63, 94, 0.12); color: var(--color-biology); }
+    .tag-english { background-color: rgba(245, 158, 11, 0.12); color: var(--color-english); }
+      .tag-bangla,
+.tag-higher.math,.tag-ict,.tag-accounting,
+.tag-finance,.tag-economics,.tag-history,
+.tag-geography,.tag-civics,.tag-religion,
+.tag-agriculture,.tag-statistics,
+.tag-general.knowledge {
+  background-color: rgba(99,102,241,0.12);
+  color: #6366f1;
+}
+    .note-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background-color: var(--background);
+      color: var(--text-main);
+    }
+
+    .action-btn.delete-btn:hover {
+      background-color: rgba(244, 63, 94, 0.1);
+      color: var(--color-biology);
+    }
+
+    .note-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .note-content {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      white-space: pre-wrap; /* Maintains line-break structures formatting */
+    }
+
+    .note-footer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+
+    /* Floating Action Button (FAB) */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(140px); /* Centers alignment near RHS bound of the PWA viewport limits */
+      width: 56px;
+      height: 56px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 50%;
+      box-shadow: var(--shadow-lg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      z-index: 15;
+    }
+
+    .fab:active {
+      transform: translateX(140px) scale(0.92);
+      background-color: var(--primary-hover);
+    }
+
+    /* Dialog Drawer (Add/Edit Note Modal Interface) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 20;
+      display: none;
+      justify-content: center;
+      align-items: flex-end; /* Slides modal up like a sheet on mobile devices */
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background-color: var(--surface);
+      width: 100%;
+      max-width: 480px;
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background-color: var(--background);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      background-color: var(--surface);
+    }
+
+    .form-textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+    }
+
+    .btn-secondary {
+      background-color: var(--background);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:active {
+      background-color: var(--border);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:active {
+      background-color: var(--primary-hover);
+    }
+
+    /* Empty State Dashboard View */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      gap: 12px;
+    }
+
+    .empty-state-icon {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* Custom Responsive Adjustments */
+    @media (min-width: 481px) {
+      .fab {
+        left: calc(50% + 240px);
+        transform: translateX(-80px);
+      }
+      .fab:active {
+        transform: translateX(-80px) scale(0.92);
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <div class="app-container">
+    
+    <!-- Top Nav Header -->
+    <header>
+      <div class="header-left">
+        <button class="back-btn" onclick="history.back() || console.log('Home Clicked')" aria-label="Go Back">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <h1>My Notes</h1>
+      </div>
+      <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Dark Mode">
+        <i data-lucide="moon" id="theme-icon"></i>
+      </button>
+    </header>
+
+    <!-- Main Section -->
+    <main>
+      
+      <!-- Search -->
+      <div class="search-container">
+        <i data-lucide="search" class="search-icon" size="18"></i>
+        <input 
+          type="search" 
+          class="search-input" 
+          id="search-input" 
+          placeholder="Search within your notes..." 
+          aria-label="Search notes"
+        >
+      </div>
+
+      <!-- Subject Filters Horizontal Scroll -->
+   <nav class="subject-folders" aria-label="Filter notes by subject">
+  <button class="folder-pill active" data-subject="All">All</button>
+
+  <button class="folder-pill" data-subject="Bangla">Bangla</button>
+  <button class="folder-pill" data-subject="English">English</button>
+  <button class="folder-pill" data-subject="Math">Math</button>
+  <button class="folder-pill" data-subject="Higher-Math">Higher Math</button>
+  <button class="folder-pill" data-subject="Physics">Physics</button>
+  <button class="folder-pill" data-subject="Chemistry">Chemistry</button>
+  <button class="folder-pill" data-subject="Biology">Biology</button>
+  <button class="folder-pill" data-subject="ICT">ICT</button>
+  <button class="folder-pill" data-subject="Accounting">Accounting</button>
+  <button class="folder-pill" data-subject="Finance">Finance</button>
+  <button class="folder-pill" data-subject="Economics">Economics</button>
+  <button class="folder-pill" data-subject="History">History</button>
+  <button class="folder-pill" data-subject="Geography">Geography</button>
+  <button class="folder-pill" data-subject="Civics">Civics</button>
+  <button class="folder-pill" data-subject="Religion">Religion</button>
+  <button class="folder-pill" data-subject="Agriculture">Agriculture</button>
+  <button class="folder-pill" data-subject="Statistics">Statistics</button>
+  <button class="folder-pill" data-subject="General-">General Knowledge</button>
+</nav>
+
+      <!-- Notes Content Output Area -->
+      <section class="notes-list" id="notes-container"></section>
+
+      <!-- Empty State View -->
+      <div class="empty-state" id="empty-state-view">
+        <div class="empty-state-icon">
+          <i data-lucide="file-plus-2" size="28"></i>
+        </div>
+        <h3>No notes found</h3>
+        <p>Start your dashboard compilation by writing down your first academic discovery using the floating button below.</p>
+      </div>
+
+    </main>
+
+    <!-- Floating Add Button -->
+    <button class="fab" id="fab-add-note" aria-label="Create New Note">
+      <i data-lucide="plus" size="28"></i>
+    </button>
+
+    <!-- Slide-Up Creation/Editing Modal -->
+    <div class="modal-overlay" id="note-modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modal-title-text">New Note</h3>
+          <button class="modal-close" id="modal-close-btn" aria-label="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <form id="note-form" onsubmit="event.preventDefault();">
+          <!-- Hidden parameter mapping editing actions -->
+          <input type="hidden" id="edit-note-id">
+
+          <!-- Subject Selection -->
+          <div class="form-group">
+            <label class="form-label" for="note-subject">Subject</label>
+            <select class="form-select" id="note-subject" required>
+  <option value="Bangla">Bangla</option>
+  <option value="English">English</option>
+  <option value="Math">Math</option>
+  <option value="Higher Math">Higher Math</option>
+  <option value="Physics">Physics</option>
+  <option value="Chemistry">Chemistry</option>
+  <option value="Biology">Biology</option>
+  <option value="ICT">ICT</option>
+  <option value="Accounting">Accounting</option>
+  <option value="Finance">Finance</option>
+  <option value="Economics">Economics</option>
+  <option value="History">History</option>
+  <option value="Geography">Geography</option>
+  <option value="Civics">Civics</option>
+  <option value="Religion">Religion</option>
+  <option value="Agriculture">Agriculture</option>
+  <option value="Statistics">Statistics</option>
+  <option value="General Knowledge">General Knowledge</option>
+</select>
+          </div>
+
+          <!-- Note Title -->
+          <div class="form-group">
+            <label class="form-label" for="note-title">Title</label>
+            <input type="text" class="form-input" id="note-title" placeholder="e.g. Kinetic Energy equations" required>
+          </div>
+
+          <!-- Note Text Area -->
+          <div class="form-group">
+            <label class="form-label" for="note-content">Note Content</label>
+            <textarea class="form-textarea" id="note-content" placeholder="Type or paste your markdown/text syllabus content here..." required></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="modal-save-btn">Save Note</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // System Variables
+    let notes = [];
+    let currentSubjectFilter = 'All';
+    let searchQuery = '';
+
+    // Selected Elements
+    const notesContainer = document.getElementById('notes-container');
+    const emptyStateView = document.getElementById('empty-state-view');
+    const searchInput = document.getElementById('search-input');
+    const subjectPills = document.querySelectorAll('.folder-pill');
+    const fab = document.getElementById('fab-add-note');
+    const modalOverlay = document.getElementById('note-modal-overlay');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const noteForm = document.getElementById('note-form');
+    
+    // Form Inputs
+    const editNoteId = document.getElementById('edit-note-id');
+    const noteSubject = document.getElementById('note-subject');
+    const noteTitle = document.getElementById('note-title');
+    const noteContent = document.getElementById('note-content');
+    const modalTitleText = document.getElementById('modal-title-text');
+
+    // Theme Switcher Elements
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    // Load initial runtime functions
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadNotes();
+      renderNotes();
+      lucide.createIcons();
+    });
+
+    // Theme Engine Control
+    function initTheme() {
+      const savedTheme = localStorage.getItem('study-vault-theme') || 'light';
+      document.body.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const activeTheme = document.body.getAttribute('data-theme');
+      const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('study-vault-theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      if (theme === 'dark') {
+        themeIcon.setAttribute('data-lucide', 'sun');
+      } else {
+        themeIcon.setAttribute('data-lucide', 'moon');
+      }
+      lucide.createIcons();
+    }
+
+    // Storage Management
+    function loadNotes() {
+      const rawNotes = localStorage.getItem('study-vault-notes');
+      if (rawNotes) {
+        notes = JSON.parse(rawNotes);
+      } else {
+        // Sample baseline starter template content 
+        notes = [
+          {
+            id: 'sample-1',
+            title: 'Quadratic Formula Concept',
+            content: 'Find roots for equations shaped ax² + bx + c = 0.\n\nFormula:\nx = [-b ± √(b² - 4ac)] / 2a',
+            subject: 'Math',
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 'sample-2',
+            title: 'Newton\'s Second Law',
+            content: 'F = ma (Force = Mass times Acceleration).\nUnit of measurement: Newtons (N).',
+            subject: 'Physics',
+            updatedAt: new Date().toISOString()
+          }
+        ];
+        saveNotesToLocalStorage();
+      }
+    }
+
+    function saveNotesToLocalStorage() {
+      localStorage.setItem('study-vault-notes', JSON.stringify(notes));
+    }
+
+    // Presentation Layout Rendering
+    function renderNotes() {
+      // Clear container child elements
+      notesContainer.innerHTML = '';
+
+      // Apply subject selection and query string filters
+      const filtered = notes.filter(note => {
+        const matchesSubject = currentSubjectFilter === 'All' || note.subject === currentSubjectFilter;
+        const matchesQuery = note.title.toLowerCase().includes(searchQuery) || 
+                             note.content.toLowerCase().includes(searchQuery);
+        return matchesSubject && matchesQuery;
+      });
+
+      // Show/Hide empty template views
+      if (filtered.length === 0) {
+        emptyStateView.style.display = 'flex';
+        notesContainer.style.display = 'none';
+      } else {
+        emptyStateView.style.display = 'none';
+        notesContainer.style.display = 'flex';
+
+        // Display newest entries on top
+        filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+        filtered.forEach(note => {
+          const noteCard = document.createElement('article');
+          noteCard.className = 'note-card';
+          noteCard.id = `note-${note.id}`;
+
+          // Format timestamp representation
+          const displayDate = new Date(note.updatedAt).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          noteCard.innerHTML = `
+            <div class="note-header">
+              <span class="note-tag tag-${note.subject.toLowerCase()}">${note.subject}</span>
+              <div class="note-actions">
+                <button class="action-btn" onclick="openEditModal('${note.id}')" aria-label="Edit Note">
+                  <i data-lucide="edit-2" size="16"></i>
+                </button>
+                <button class="action-btn delete-btn" onclick="deleteNote('${note.id}')" aria-label="Delete Note">
+                  <i data-lucide="trash-2" size="16"></i>
+                </button>
+              </div>
+            </div>
+            <h3 class="note-title">${escapeHTML(note.title)}</h3>
+            <p class="note-content">${escapeHTML(note.content)}</p>
+            <div class="note-footer">
+              <i data-lucide="clock" size="12"></i>
+              <span>Modified: ${displayDate}</span>
+            </div>
+          `;
+          notesContainer.appendChild(noteCard);
+        });
+      }
+      lucide.createIcons();
+    }
+
+    // Modal Control Functions
+    function openAddModal() {
+      modalTitleText.textContent = 'New Note';
+      editNoteId.value = '';
+      noteTitle.value = '';
+      noteContent.value = '';
+      // Default choice defaults to active filter category if valid selection
+      if (currentSubjectFilter !== 'All') {
+        noteSubject.value = currentSubjectFilter;
+      } else {
+        noteSubject.value = 'Math';
+      }
+      modalOverlay.classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const selectedNote = notes.find(n => n.id === id);
+      if (!selectedNote) return;
+
+      modalTitleText.textContent = 'Edit Note';
+      editNoteId.value = selectedNote.id;
+      noteSubject.value = selectedNote.subject;
+      noteTitle.value = selectedNote.title;
+      noteContent.value = selectedNote.content;
+      modalOverlay.classList.add('active');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+    }
+
+    // Add / Edit submission logic
+    noteForm.addEventListener('submit', () => {
+      const idVal = editNoteId.value;
+      const subjectVal = noteSubject.value;
+      const titleVal = noteTitle.value.trim();
+      const contentVal = noteContent.value.trim();
+
+      if (!titleVal || !contentVal) return;
+
+      if (idVal) {
+        // Edit Mode
+        const targetIndex = notes.findIndex(n => n.id === idVal);
+        if (targetIndex !== -1) {
+          notes[targetIndex] = {
+            ...notes[targetIndex],
+            title: titleVal,
+            subject: subjectVal,
+            content: contentVal,
+            updatedAt: new Date().toISOString()
+          };
+        }
+      } else {
+        // Creation Mode
+        const newNoteObj = {
+          id: 'note-' + Date.now(),
+          title: titleVal,
+          subject: subjectVal,
+          content: contentVal,
+          updatedAt: new Date().toISOString()
+        };
+        notes.push(newNoteObj);
+      }
+
+      saveNotesToLocalStorage();
+      renderNotes();
+      closeModal();
+    });
+
+    // Delete Operations
+    function deleteNote(id) {
+      if (confirm("Are you sure you want to delete this note?")) {
+        notes = notes.filter(n => n.id !== id);
+        saveNotesToLocalStorage();
+        renderNotes();
+      }
+    }
+
+    // Filtering Interaction Logic
+    subjectPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        subjectPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentSubjectFilter = pill.getAttribute('data-subject');
+        renderNotes();
+      });
+    });
+
+    // Real-time Text Input Search
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      renderNotes();
+    });
+
+    // Action Listener Connections
+    fab.addEventListener('click', openAddModal);
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalCancelBtn.addEventListener('click', closeModal);
+
+    // Prevent background window clicks from executing when overlay is showing
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // Escape character security protection helper
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+  </html>
