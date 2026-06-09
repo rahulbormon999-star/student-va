@@ -321,10 +321,77 @@
         font-size: 1.2rem;
       }
     }
+
+    #installScreen{
+  position:fixed;
+  inset:0;
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.install-box{
+  text-align:center;
+  width:90%;
+  max-width:350px;
+}
+
+.install-logo{
+  width:100px;
+  height:100px;
+  border-radius:22px;
+  margin-bottom:20px;
+}
+
+.install-box h1{
+  font-size:28px;
+  margin-bottom:25px;
+}
+
+.install-buttons{
+  display:flex;
+  gap:10px;
+}
+
+.install-buttons button{
+  flex:1;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+#installBtn{
+  background:#2563eb;
+  color:white;
+}
+
+#cancelBtn{
+  background:#e5e7eb;
+}
   </style>
 </head>
 <body>
+  <!-- INSTALL SCREEN -->
+<div id="installScreen">
+  <div class="install-box">
+    <img src="logo.png" class="install-logo">
 
+    <h1>Study Vault</h1>
+
+    <div class="install-buttons">
+      <button id="installBtn">Install</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appContent" style="display:none;">
   <div class="app-container">
     
     <!-- Top Header -->
@@ -441,8 +508,70 @@
     </main>
 
   </div>
-
+</div>
   <script>
+    // install and cancel button control 
+    
+let deferredPrompt;
+
+const installScreen = document.getElementById("installScreen");
+const appContent = document.getElementById("appContent");
+
+function showApp() {
+  installScreen.style.display = "none";
+  appContent.style.display = "block";
+}
+
+if(localStorage.getItem("studyvault_installed") === "yes"){
+  showApp();
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+
+  if(!deferredPrompt){
+    alert("Install option is not available yet.");
+    return;
+  }
+
+  deferredPrompt.prompt();
+
+  const result = await deferredPrompt.userChoice;
+
+  if(result.outcome === "accepted"){
+
+    localStorage.setItem(
+      "studyvault_installed",
+      "yes"
+    );
+
+    showApp();
+
+  }
+
+  deferredPrompt = null;
+});
+
+document.getElementById("cancelBtn").addEventListener("click", () => {
+
+  installScreen.innerHTML = `
+    <div style="
+      text-align:center;
+      padding:30px;
+      font-family:Inter;
+    ">
+      <h2>Installation Cancelled</h2>
+      <p>You can install Study Vault later.</p>
+    </div>
+  `;
+
+});
+
+    
     // Initialize crisp SVG Lucide icons
     lucide.createIcons();
 
