@@ -1,4 +1,4 @@
-const CACHE_NAME    = 'study-vault-v1';
+const CACHE_NAME    = 'study-vault-v8';
 const OFFLINE_PAGE  = './index.html';
 
 // All files to pre-cache on install
