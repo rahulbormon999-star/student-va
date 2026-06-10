@@ -1,24 +1,51 @@
 {
   "name": "Study Vault",
-  "short_name": "StudyVault",
-  "description": "Offline Student Productivity App",
+  "short_name": "Study Vault",
+  "description": "আপনার পড়াশোনার সব কিছু এক জায়গায় — নোট, রুটিন, প্রশ্নব্যাংক, ফ্ল্যাশকার্ড ও পিডিএফ লাইব্রেরি।",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
-  "lang": "en",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "lang": "en-US",
+  "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "logo.png",
+      "src": "logo.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo.png",
+      "src": "logo.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Notes",
+      "short_name": "Notes",
+      "description": "Open your lecture notes",
+      "url": "./nodes.html",
+      "icons": [{ "src": "logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    },
+    {
+      "name": "Question Bank",
+      "short_name": "Questions",
+      "description": "Practice mock quizzes",
+      "url": "./qbp.html",
+      "icons": [{ "src": "logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    },
+    {
+      "name": "Routine Planner",
+      "short_name": "Routine",
+      "description": "Manage daily study schedule",
+      "url": "./routine.html",
+      "icons": [{ "src": "logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
     }
   ]
 }
