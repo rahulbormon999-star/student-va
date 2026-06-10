@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Study Vault">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #e0e7ff;
+      --primary-dark: #3730a3;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════
+       INSTALL SCREEN
+    ═══════════════════════════════ */
+    #installScreen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #f0f4ff 0%, #fafafe 50%, #f5f0ff 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    /* Decorative background blobs */
+    #installScreen::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    #installScreen::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(147,51,234,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .install-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 28px 32px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .install-logo-wrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      overflow: hidden;
+      box-shadow: 0 0 0 6px rgba(79,70,229,0.1);
+    }
+
+    .install-logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+    }
+
+    .install-logo-wrap .fallback-icon {
+      color: var(--primary);
+    }
+
+    .install-logo-wrap .fallback-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .install-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .install-badge svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    .install-card h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .install-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    /* Feature highlights */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .feature-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .install-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #installBtn {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    #installBtn:active {
+      background: var(--primary-dark);
+      transform: scale(0.98);
+    }
+
+    @media (hover: hover) {
+      #installBtn:hover {
+        background: var(--primary-dark);
+        box-shadow: 0 4px 12px rgba(79,70,229,0.35);
+      }
+    }
+
+    #installBtn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    #cancelBtn {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+
+    #cancelBtn:active {
+      background: #f1f5f9;
+    }
+
+    .install-footer {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* iOS manual install guide */
+    #iosGuide {
+      display: none;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    #iosGuide p {
+      font-size: 0.8rem;
+      color: #92400e;
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    #iosGuide strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+    }
+
+    /* ═══════════════════════════════
+       MAIN APP
+    ═══════════════════════════════ */
+    #appContent {
+      display: none;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--background);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-bottom: 32px;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-container {
+      background-color: var(--primary);
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-container svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .brand h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .profile-btn {
+      background: none;
+      border: 2px solid var(--primary-light);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    main {
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .welcome-greeting {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      width: 18px;
+      height: 18px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      align-items: center;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+      background-color: #f1f5f9;
+    }
+
+    @media (hover: hover) {
+      .card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-light);
+      }
+    }
+
+    .card-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-icon-wrapper svg { width: 20px; height: 20px; }
+
+    .card-notes     { background-color: #ecfeff; color: #0891b2; }
+    .card-pdf       { background-color: #fff1f2; color: #e11d48; }
+    .card-questions { background-color: #fef9c3; color: #ca8a04; }
+    .card-flashcards{ background-color: #f3e8ff; color: #9333ea; }
+    .card-planner   { background-color: #ecfdf5; color: #059669; }
+    .card-routine   { background-color: #eff6ff; color: #2563eb; }
+
+    .card-content { flex: 1; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .card-description {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (min-width: 400px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ INSTALL SCREEN ═══ -->
+  <div id="installScreen">
+    <div class="install-card">
+
+      <div class="install-logo-wrap">
+        <img src="logo.jpg" alt="Study Vault" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display:none;">
+          <i data-lucide="shield"></i>
+        </div>
+      </div>
+
+      <div class="install-badge">
+        <i data-lucide="smartphone"></i>
+        Free App
+      </div>
+
+      <h1>Study Vault</h1>
+      <p>আপনার পড়াশোনার সব কিছু এক জায়গায় — নোট, রুটিন, প্রশ্নব্যাংক, ফ্ল্যাশকার্ড ও আরও অনেক কিছু।</p>
+
+      <div class="feature-list">
+        <div class="feature-item"><span class="feature-dot"></span> নোট তৈরি ও সংগঠিত করুন</div>
+        <div class="feature-item"><span class="feature-dot"></span> পিডিএফ লাইব্রেরি ও অ্যানোটেশন</div>
+        <div class="feature-item"><span class="feature-dot"></span> কাস্টম প্রশ্নব্যাংক ও ফ্ল্যাশকার্ড</div>
+        <div class="feature-item"><span class="feature-dot"></span> ডেইলি রুটিন ও পরীক্ষার প্ল্যানার</div>
+      </div>
+
+      <div class="install-actions">
+        <button id="installBtn">
+          <i data-lucide="download"></i>
+          Install Now — এটি ইন্সটল করুন
+        </button>
+        <button id="cancelBtn">Cancel</button>
+      </div>
+
+      <!-- iOS Safari guide (shown dynamically) -->
+      <div id="iosGuide">
+        <p>
+          <strong>📱 iOS Safari-তে ইন্সটল করুন:</strong>
+          নিচের <strong>Share</strong> বাটন ট্যাপ করুন → তারপর <strong>"Add to Home Screen"</strong> সিলেক্ট করুন।
+        </p>
+      </div>
+
+    </div>
+
+    <p class="install-footer">ইন্সটল করলে কোনো স্টোরেজ পারমিশন লাগবে না। সম্পূর্ণ বিনামূল্যে।</p>
+  </div>
+
+  <!-- ═══ MAIN APP ═══ -->
+  <div id="appContent">
+    <div class="app-container">
+
+      <header>
+        <div class="brand">
+          <div class="logo-container">
+            <i data-lucide="shield"></i>
+          </div>
+          <h1>Study Vault</h1>
+        </div>
+        <button class="profile-btn" aria-label="Profile">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Profile">
+        </button>
+      </header>
+
+      <main>
+
+        <section>
+          <h2 class="welcome-greeting" id="greeting">Hello, Student</h2>
+          <p class="welcome-sub" id="current-date">Let's continue your learning path.</p>
+        </section>
+
+        <div class="search-container">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="search" class="search-input" id="search-input" placeholder="Search tools or resources...">
+        </div>
+
+        <section class="dashboard-grid" id="cards-grid">
+
+          <a href="nodes.html" class="card" data-title="Notes">
+            <div class="card-icon-wrapper card-notes">
+              <i data-lucide="file-text"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Notes</h3>
+              <p class="card-description">Create, organize, and format your markdown lecture notes.</p>
+            </div>
+          </a>
+
+          <a href="pdf.html" class="card" data-title="PDF Library">
+            <div class="card-icon-wrapper card-pdf">
+              <i data-lucide="book-open"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">PDF Library</h3>
+              <p class="card-description">Store, read, and annotate your academic textbooks.</p>
+            </div>
+          </a>
+
+          <a href="qbp.html" class="card" data-title="Question Bank">
+            <div class="card-icon-wrapper card-questions">
+              <i data-lucide="help-circle"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Question Bank</h3>
+              <p class="card-description">Practice custom mock quizzes and review solutions.</p>
+            </div>
+          </a>
+
+          <a href="fcp.html" class="card" data-title="Flashcards">
+            <div class="card-icon-wrapper card-flashcards">
+              <i data-lucide="brain-circuit"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Flashcards</h3>
+              <p class="card-description">Spaced repetition decks for rapid terms memorization.</p>
+            </div>
+          </a>
+
+          <a href="exp.html" class="card" data-title="Exam Planner">
+            <div class="card-icon-wrapper card-planner">
+              <i data-lucide="calendar"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Exam Planner</h3>
+              <p class="card-description">Schedule study blocks and track upcoming quiz dates.</p>
+            </div>
+          </a>
+
+          <a href="routine.html" class="card" data-title="Routine Planner">
+            <div class="card-icon-wrapper card-routine">
+              <i data-lucide="clock"></i>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Routine Planner</h3>
+              <p class="card-description">Organize your daily study schedules, classes, and habits.</p>
+            </div>
+          </a>
+
+        </section>
+
+        <div class="no-results" id="no-results-view">
+          <i data-lucide="search-code" style="width:32px;height:32px;"></i>
+          <p>No study tools match your search.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ─── PWA Detection ───────────────────────────────────────────────
+    function isInstalled() {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.navigator.standalone === true ||
+        document.referrer.includes('android-app://')
+      );
+    }
+
+    function isIOS() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    const installScreen = document.getElementById('installScreen');
+    const appContent    = document.getElementById('appContent');
+    let deferredPrompt  = null;
+
+    function showApp() {
+      installScreen.style.display = 'none';
+      appContent.style.display    = 'flex';
+      setGreeting();
+      setDate();
+    }
+
+    function showInstall() {
+      installScreen.style.display = 'flex';
+      appContent.style.display    = 'none';
+      // Show iOS guide if on iOS Safari (no beforeinstallprompt support)
+      if (isIOS()) {
+        document.getElementById('iosGuide').style.display = 'block';
+      }
+    }
+
+    // On load: check if already installed (standalone mode)
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      if (isInstalled()) {
+        showApp();
+      } else {
+        showInstall();
+      }
+    });
+
+    // Capture the install prompt (Android/Chrome)
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    // After app is installed from home screen, recheck
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      // Will show app next time opened in standalone mode
+    });
+
+    // ─── Install Button ───────────────────────────────────────────────
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        // Chrome / Android: native prompt
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === 'accepted') {
+          // User accepted; app will open in standalone next launch
+          document.getElementById('installBtn').textContent = '✓ Installing...';
+          document.getElementById('installBtn').disabled = true;
+        }
+      } else if (isIOS()) {
+        // iOS: show the guide (already shown, just highlight it)
+        const guide = document.getElementById('iosGuide');
+        guide.style.display = 'block';
+        guide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        // Fallback for other browsers
+        alert(
+          "To install Study Vault:\n\n" +
+          "• Chrome/Edge: Click the install icon (⊕) in the address bar.\n" +
+          "• iOS Safari: Tap Share → 'Add to Home Screen'.\n" +
+          "• Firefox: Tap the menu → 'Install'."
+        );
+      }
+    });
+
+    // ─── Cancel Button ────────────────────────────────────────────────
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      alert("Study Vault ব্যবহার করতে প্রথমে অ্যাপটি ইন্সটল করুন।\nInstall করুন এবং হোমস্ক্রিন থেকে ওপেন করুন।");
+    });
+
+    // ─── Greeting & Date ─────────────────────────────────────────────
+    function setGreeting() {
+      const hour = new Date().getHours();
+      const el   = document.getElementById('greeting');
+      if      (hour < 12) el.textContent = "Good Morning! 🌤️";
+      else if (hour < 18) el.textContent = "Good Afternoon! ☀️";
+      else                el.textContent = "Good Evening! 🌙";
+    }
+
+    function setDate() {
+      const el      = document.getElementById('current-date');
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      el.textContent = `Today is ${new Date().toLocaleDateString('en-US', options)}`;
+    }
+
+    // ─── Search Filter ────────────────────────────────────────────────
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.card');
+      let count   = 0;
+
+      cards.forEach(card => {
+        const title = card.getAttribute('data-title').toLowerCase();
+        const desc  = card.querySelector('.card-description').textContent.toLowerCase();
+        const match = title.includes(query) || desc.includes(query);
+        card.style.display = match ? 'flex' : 'none';
+        if (match) count++;
+      });
+
+      document.getElementById('no-results-view').style.display =
+        count === 0 ? 'flex' : 'none';
+    });
+
+    // ─── Service Worker ───────────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .catch(err => console.warn('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+  </html>
